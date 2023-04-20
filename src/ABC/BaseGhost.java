@@ -11,6 +11,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -90,22 +92,22 @@ public abstract class BaseGhost {
         //load weak Image
         ghostW = new Image[2];
         try {
-            ghostW[0] = ImageIO.read(this.getClass().getResource("../resources/images/ghost/blue/1.png"));
-            ghostW[1] = ImageIO.read(this.getClass().getResource("../resources/images/ghost/blue/3.png"));
+            ghostW[0] = ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/blue/1.png"))));
+            ghostW[1] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/blue/3.png")));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         ghostWW = new Image[2];
         try {
-            ghostWW[0] = ImageIO.read(this.getClass().getResource("../resources/images/ghost/white/1.png"));
-            ghostWW[1] = ImageIO.read(this.getClass().getResource("../resources/images/ghost/white/3.png"));
+            ghostWW[0] = ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/white/1.png"))));
+            ghostWW[1] = ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/white/3.png"))));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         try {
-            ghostEye = ImageIO.read(this.getClass().getResource("../resources/images/eye.png"));
+            ghostEye = ImageIO.read(Files.newInputStream(Paths.get("resources/images/eye.png")));
         } catch (IOException e) {
             e.printStackTrace();
         }

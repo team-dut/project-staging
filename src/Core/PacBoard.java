@@ -12,6 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class PacBoard extends JPanel {
@@ -109,7 +111,7 @@ public class PacBoard extends JPanel {
         mapSegments[0] = null;
         for (int ms = 1; ms < 28; ms++) {
             try {
-                mapSegments[ms] = ImageIO.read(this.getClass().getResource("../resources/images/map segments/" + ms + ".png"));
+                mapSegments[ms] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/map segments/" + ms + ".png")));
             } catch (Exception e) {
             }
         }
@@ -117,14 +119,14 @@ public class PacBoard extends JPanel {
         pfoodImage = new Image[5];
         for (int ms = 0; ms < 5; ms++) {
             try {
-                pfoodImage[ms] = ImageIO.read(this.getClass().getResource("../resources/images/food/" + ms + ".png"));
+                pfoodImage[ms] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food/" + ms + ".png")));
             } catch (Exception e) {
             }
         }
         try {
-            foodImage = ImageIO.read(this.getClass().getResource("../resources/images/food.png"));
-            goImage = ImageIO.read(this.getClass().getResource("../resources/images/gameover.png"));
-            vicImage = ImageIO.read(this.getClass().getResource("../resources/images/victory.png"));
+            foodImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food.png")));
+            goImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/gameover.png")));
+            vicImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/victory.png")));
             //pfoodImage = ImageIO.read(this.getClass().getResource("/images/pfood.png"));
         } catch (Exception e) {
         }

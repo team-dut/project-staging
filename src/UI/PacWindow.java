@@ -9,6 +9,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class PacWindow extends JFrame {
@@ -25,7 +27,7 @@ public class PacWindow extends JFrame {
         JLabel scoreboard = new JLabel("    Score : 0");
         scoreboard.setForeground(new Color(255, 243, 36));
 
-        MapData map1 = getMapFromResource("../resources/maps/map1_c.txt");
+        MapData map1 = getMapFromResource("resources/maps/map1_c.txt");
         adjustMap(map1);
 
         /*map1.getTeleports().add(new TeleportTunnel(-1,14,27,14,moveType.LEFT));
@@ -56,7 +58,6 @@ public class PacWindow extends JFrame {
     }
 
     public PacWindow(MapData md) {
-        setTitle("AKP Pacman v1.0");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         getContentPane().setBackground(Color.black);
@@ -81,7 +82,7 @@ public class PacWindow extends JFrame {
 
     public int[][] loadMap(int mx, int my, String relPath) {
         try {
-            Scanner scn = new Scanner(this.getClass().getResourceAsStream(relPath));
+            Scanner scn = new Scanner(Files.newInputStream(Paths.get(relPath)));
             int[][] map;
             map = new int[mx][my];
             for (int y = 0; y < my; y++) {
@@ -99,7 +100,7 @@ public class PacWindow extends JFrame {
     public MapData getMapFromResource(String relPath) {
         String mapStr = "";
         try {
-            Scanner scn = new Scanner(this.getClass().getResourceAsStream(relPath));
+            Scanner scn = new Scanner(Files.newInputStream(Paths.get(relPath)));
             StringBuilder sb = new StringBuilder();
             String line;
             while (scn.hasNextLine()) {

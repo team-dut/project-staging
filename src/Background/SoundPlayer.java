@@ -3,6 +3,9 @@ package Background;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import java.io.BufferedInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class SoundPlayer {
     public static synchronized void playAsync(final String name) {
@@ -13,7 +16,7 @@ public class SoundPlayer {
                 try {
                     Clip clip = AudioSystem.getClip();
                     AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-                            SoundPlayer.class.getResourceAsStream("../resources/sounds/" + name));
+                            new BufferedInputStream(Files.newInputStream(Paths.get("resources/sounds/" + name))));
                     clip.open(inputStream);
                     clip.start();
                 } catch (Exception e) {
@@ -27,7 +30,7 @@ public class SoundPlayer {
         try {
             Clip clip = AudioSystem.getClip();
             AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-                    SoundPlayer.class.getResourceAsStream("../resources/sounds/" + name));
+                    new BufferedInputStream(Files.newInputStream(Paths.get("resources/sounds/" + name))));
             clip.open(inputStream);
             clip.start();
         } catch (Exception e) {
@@ -39,13 +42,11 @@ public class SoundPlayer {
         try {
             Clip clip = AudioSystem.getClip();
             AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-                    SoundPlayer.class.getResourceAsStream("../resources/sounds/siren.wav"));
+                    new BufferedInputStream(Files.newInputStream(Paths.get("resources/sounds/siren.wav"))));
             clip.open(inputStream);
             clip.loop(Clip.LOOP_CONTINUOUSLY);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
     }
-
-
 }

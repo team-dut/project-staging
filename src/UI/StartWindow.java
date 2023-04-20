@@ -7,7 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class StartWindow extends JFrame {
 
@@ -19,7 +22,7 @@ public class StartWindow extends JFrame {
 
         ImageIcon logo = new ImageIcon();
         try {
-            logo = new ImageIcon(ImageIO.read(this.getClass().getResource("/resources/images/pacman_logo.png")));
+            logo = new ImageIcon(ImageIO.read(Files.newInputStream(Paths.get("resources/images/pacman_logo.png"))));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -27,7 +30,7 @@ public class StartWindow extends JFrame {
         //Register Custom fonts
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("/resources/fonts/crackman.ttf")));
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/crackman.ttf"))));
         } catch (IOException | FontFormatException e) {
             e.printStackTrace();
         }
@@ -40,10 +43,10 @@ public class StartWindow extends JFrame {
         //buttonsC.setLayout(new FlowLayout(FlowLayout.LEADING,20,10));
         buttonsC.setLayout(new BoxLayout(buttonsC, BoxLayout.Y_AXIS));
         TheButton startButton = new TheButton("Start Game");
-        TheButton customButton = new TheButton("Customize Game");
+        // TheButton customButton = new TheButton("Customize Game");
 
         startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        customButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // customButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         startButton.addActionListener(new ActionListener() {
             @Override
@@ -53,6 +56,7 @@ public class StartWindow extends JFrame {
             }
         });
 
+        /*
         customButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -60,9 +64,10 @@ public class StartWindow extends JFrame {
                 dispose();
             }
         });
+        */
 
         buttonsC.add(startButton);
-        buttonsC.add(customButton);
+        // buttonsC.add(customButton);
 
         getContentPane().add(buttonsC);
 

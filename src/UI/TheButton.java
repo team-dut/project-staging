@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class TheButton extends JLabel implements MouseListener {
 
@@ -16,7 +18,7 @@ public class TheButton extends JLabel implements MouseListener {
         super(str);
         Font customFont;
         try {
-            customFont = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("../resources/fonts/crackman.ttf")).deriveFont(30f);
+            customFont = Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/crackman.ttf"))).deriveFont(30f);
             this.setFont(customFont);
         } catch (FontFormatException e) {
             e.printStackTrace();
