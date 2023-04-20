@@ -1,2 +1,7 @@
-pacman.png
+out/production/*
 *.class
+
+
+# Since I will put some black magic into the .jar file
+# So ignore the built one by the IDE
+out/artifacts/*
