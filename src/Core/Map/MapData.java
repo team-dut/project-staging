@@ -10,16 +10,16 @@ import java.util.ArrayList;
 
 public class MapData {
 
+    private final ArrayList<Food> foodPositions;
+    private final ArrayList<PowerUpFood> pufoodPositions;
+    private final ArrayList<TeleportTunnel> teleports;
+    private final ArrayList<GhostData> ghostsData;
     private int x;
     private int y;
     private int[][] map;
     private Point pacmanPosition;
     private Point ghostBasePosition;
     private boolean isCustom;
-    private final ArrayList<Food> foodPositions;
-    private final ArrayList<PowerUpFood> pufoodPositions;
-    private final ArrayList<TeleportTunnel> teleports;
-    private final ArrayList<GhostData> ghostsData;
 
     public MapData() {
         foodPositions = new ArrayList<>();

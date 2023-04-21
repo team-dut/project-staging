@@ -18,52 +18,38 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 public abstract class BaseGhost {
+    //Move Vars
+    public Timer moveTimer;
+    public MoveType activeMove;
+    public Point pixelPosition;
+    public Point logicalPosition;
+    protected boolean isStuck = true;
+    protected boolean isPending = false;
+    protected boolean isWeak = false;
+    protected boolean isDead = false;
+    protected Image[] ghostR;
+    protected Image[] ghostL;
+    protected Image[] ghostU;
+    protected Image[] ghostD;
+    protected BFSFinder baseReturner;
+    protected PacBoard parentBoard;
     //Anim Vars
     Timer animTimer;
     ActionListener animAL;
-
     //Pending Vars
     Timer pendingTimer;
     ActionListener pendingAL;
-
-    //Move Vars
-    public Timer moveTimer;
     ActionListener moveAL;
-    public MoveType activeMove;
-    protected boolean isStuck = true;
-    protected boolean isPending = false;
-
     Timer unWeakenTimer1;
     Timer unWeakenTimer2;
     ActionListener unweak1;
     ActionListener unweak2;
     int unweakBlinks;
     boolean isWhite = false;
-
-    protected boolean isWeak = false;
-    protected boolean isDead = false;
-
-    public boolean isWeak() {
-        return isWeak;
-    }
-
-    public boolean isDead() {
-        return isDead;
-    }
-
     //Image[] pac;
     Image ghostImg;
     int activeImage = 0;
     int addFactor = 1;
-
-    public Point pixelPosition;
-    public Point logicalPosition;
-
-    protected Image[] ghostR;
-    protected Image[] ghostL;
-    protected Image[] ghostU;
-    protected Image[] ghostD;
-
     Image[] ghostW;
     Image[] ghostWW;
     Image ghostEye;
@@ -72,14 +58,10 @@ public abstract class BaseGhost {
     int ghostWeakDelay = 30;
     int ghostDeadDelay = 5;
 
-    protected BFSFinder baseReturner;
-
-    protected PacBoard parentBoard;
-
     public BaseGhost(int x, int y, PacBoard pb, int ghostDelay) {
 
-        logicalPosition = new Point(x,y);
-        pixelPosition = new Point(28*x,28*y);
+        logicalPosition = new Point(x, y);
+        pixelPosition = new Point(28 * x, 28 * y);
 
         parentBoard = pb;
 
@@ -118,14 +100,14 @@ public abstract class BaseGhost {
                 activeImage = (activeImage + 1) % 2;
             }
         };
-        animTimer = new Timer(100,animAL);
+        animTimer = new Timer(100, animAL);
         animTimer.start();
 
         moveAL = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
 
-                if((pixelPosition.x % 28 == 0) && (pixelPosition.y % 28 == 0)){
-                    if(!isStuck) {
+                if ((pixelPosition.x % 28 == 0) && (pixelPosition.y % 28 == 0)) {
+                    if (!isStuck) {
                         switch (activeMove) {
                             case RIGHT:
                                 logicalPosition.x++;
@@ -140,7 +122,7 @@ public abstract class BaseGhost {
                                 logicalPosition.y++;
                                 break;
                         }
-                        parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.UPDATE,null));
+                        parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.UPDATE, null));
                     }
 
 
@@ -153,55 +135,55 @@ public abstract class BaseGhost {
                     //    activeMove = todoMove;
                     //    todoMove = moveType.NONE;
                     //}
-                }else{
+                } else {
                     isStuck = false;
                     //animTimer.start();
                 }
                 // }
                 //TODO : fix ghost movements
-                switch(activeMove){
+                switch (activeMove) {
                     case RIGHT:
-                        if(pixelPosition.x >= (parentBoard.m_x-1) * 28){
+                        if (pixelPosition.x >= (parentBoard.m_x - 1) * 28) {
                             return;
                         }
-                        if((logicalPosition.x+1 < parentBoard.m_x) && (parentBoard.map[logicalPosition.x+1][logicalPosition.y]>0) && ((parentBoard.map[logicalPosition.x+1][logicalPosition.y]<26)||isPending)){
+                        if ((logicalPosition.x + 1 < parentBoard.m_x) && (parentBoard.map[logicalPosition.x + 1][logicalPosition.y] > 0) && ((parentBoard.map[logicalPosition.x + 1][logicalPosition.y] < 26) || isPending)) {
                             return;
                         }
-                        pixelPosition.x ++;
+                        pixelPosition.x++;
                         break;
                     case LEFT:
-                        if(pixelPosition.x <= 0){
+                        if (pixelPosition.x <= 0) {
                             return;
                         }
-                        if((logicalPosition.x-1 >= 0) && (parentBoard.map[logicalPosition.x-1][logicalPosition.y]>0) && ((parentBoard.map[logicalPosition.x-1][logicalPosition.y]<26)||isPending)){
+                        if ((logicalPosition.x - 1 >= 0) && (parentBoard.map[logicalPosition.x - 1][logicalPosition.y] > 0) && ((parentBoard.map[logicalPosition.x - 1][logicalPosition.y] < 26) || isPending)) {
                             return;
                         }
-                        pixelPosition.x --;
+                        pixelPosition.x--;
                         break;
                     case UP:
-                        if(pixelPosition.y <= 0){
+                        if (pixelPosition.y <= 0) {
                             return;
                         }
-                        if((logicalPosition.y-1 >= 0) && (parentBoard.map[logicalPosition.x][logicalPosition.y-1]>0) && ((parentBoard.map[logicalPosition.x][logicalPosition.y-1]<26)||isPending)){
+                        if ((logicalPosition.y - 1 >= 0) && (parentBoard.map[logicalPosition.x][logicalPosition.y - 1] > 0) && ((parentBoard.map[logicalPosition.x][logicalPosition.y - 1] < 26) || isPending)) {
                             return;
                         }
                         pixelPosition.y--;
                         break;
                     case DOWN:
-                        if(pixelPosition.y >= (parentBoard.m_y-1) * 28){
+                        if (pixelPosition.y >= (parentBoard.m_y - 1) * 28) {
                             return;
                         }
-                        if((logicalPosition.y+1 < parentBoard.m_y) && (parentBoard.map[logicalPosition.x][logicalPosition.y+1]>0) && ((parentBoard.map[logicalPosition.x][logicalPosition.y+1]<26)||isPending)){
+                        if ((logicalPosition.y + 1 < parentBoard.m_y) && (parentBoard.map[logicalPosition.x][logicalPosition.y + 1] > 0) && ((parentBoard.map[logicalPosition.x][logicalPosition.y + 1] < 26) || isPending)) {
                             return;
                         }
-                        pixelPosition.y ++;
+                        pixelPosition.y++;
                         break;
                 }
 
-                parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.COLTEST,null));
+                parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.COLTEST, null));
             }
         };
-        moveTimer = new Timer(ghostDelay,moveAL);
+        moveTimer = new Timer(ghostDelay, moveAL);
         moveTimer.start();
 
         unweak1 = new ActionListener() {
@@ -211,24 +193,20 @@ public abstract class BaseGhost {
                 unWeakenTimer1.stop();
             }
         };
-        unWeakenTimer1 = new Timer(7000,unweak1);
+        unWeakenTimer1 = new Timer(7000, unweak1);
 
         unweak2 = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(unweakBlinks == 10){
+                if (unweakBlinks == 10) {
                     unweaken();
                     unWeakenTimer2.stop();
                 }
-                if(unweakBlinks % 2 == 0){
-                    isWhite = true;
-                }else{
-                    isWhite = false;
-                }
+                isWhite = unweakBlinks % 2 == 0;
                 unweakBlinks++;
             }
         };
-        unWeakenTimer2 = new Timer(250,unweak2);
+        unWeakenTimer2 = new Timer(250, unweak2);
 
 
         pendingAL = new ActionListener() {
@@ -238,12 +216,20 @@ public abstract class BaseGhost {
                 pendingTimer.stop();
             }
         };
-        pendingTimer = new Timer(7000,pendingAL);
+        pendingTimer = new Timer(7000, pendingAL);
 
         baseReturner = new BFSFinder(pb);
         //start AI
         activeMove = getMoveAI();
 
+    }
+
+    public boolean isWeak() {
+        return isWeak;
+    }
+
+    public boolean isDead() {
+        return isDead;
     }
 
     //load Images from Resource
@@ -253,10 +239,10 @@ public abstract class BaseGhost {
     public abstract MoveType getMoveAI();
 
     //get possible Moves
-    public ArrayList<MoveType> getPossibleMoves(){
+    public ArrayList<MoveType> getPossibleMoves() {
         ArrayList<MoveType> possibleMoves = new ArrayList<>();
 
-        if(logicalPosition.x >= 0 && logicalPosition.x < parentBoard.m_x-1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y-1 ) {
+        if (logicalPosition.x >= 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
             //System.out.println(this.toString());
             if (!(parentBoard.map[logicalPosition.x + 1][logicalPosition.y] > 0)) {
                 possibleMoves.add(MoveType.RIGHT);
@@ -266,11 +252,11 @@ public abstract class BaseGhost {
                 possibleMoves.add(MoveType.LEFT);
             }
 
-            if(!(parentBoard.map[logicalPosition.x][logicalPosition.y-1]>0)){
+            if (!(parentBoard.map[logicalPosition.x][logicalPosition.y - 1] > 0)) {
                 possibleMoves.add(MoveType.UP);
             }
 
-            if(!(parentBoard.map[logicalPosition.x][logicalPosition.y+1]>0)){
+            if (!(parentBoard.map[logicalPosition.x][logicalPosition.y + 1] > 0)) {
                 possibleMoves.add(MoveType.DOWN);
             }
         }
@@ -278,8 +264,8 @@ public abstract class BaseGhost {
         return possibleMoves;
     }
 
-    public Image getGhostImage(){
-        if(!isDead) {
+    public Image getGhostImage() {
+        if (!isDead) {
             if (!isWeak) {
                 switch (activeMove) {
                     case RIGHT:
@@ -299,13 +285,13 @@ public abstract class BaseGhost {
                     return ghostW[activeImage];
                 }
             }
-        }else{
+        } else {
             return ghostEye;
         }
     }
 
 
-    public void weaken(){
+    public void weaken() {
         isWeak = true;
         moveTimer.setDelay(ghostWeakDelay);
         unweakBlinks = 0;
@@ -313,27 +299,27 @@ public abstract class BaseGhost {
         unWeakenTimer1.start();
     }
 
-    public void unweaken(){
+    public void unweaken() {
         isWeak = false;
         moveTimer.setDelay(ghostNormalDelay);
     }
 
-    public void die(){
+    public void die() {
         isDead = true;
         moveTimer.setDelay(ghostDeadDelay);
     }
 
-    public void undie(){
+    public void undie() {
         //Shift Left Or Right
         int r = ThreadLocalRandom.current().nextInt(3);
         if (r == 0) {
             //Do nothing
         }
-        if(r==1){
+        if (r == 1) {
             logicalPosition.x += 1;
             pixelPosition.x += 28;
         }
-        if(r==2){
+        if (r == 2) {
             logicalPosition.x -= 1;
             pixelPosition.x -= 28;
         }

@@ -1,10 +1,12 @@
 package Core.Map;
 
 import Core.GhostData;
-import Entities.*;
+import Entities.Food;
+import Entities.PowerUpFood;
 import Enums.GhostColor;
 import Helpers.StringHelper;
-import UI.*;
+import UI.PacWindow;
+import UI.TheButton;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;

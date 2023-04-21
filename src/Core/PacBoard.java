@@ -1,7 +1,8 @@
 package Core;
 
 import ABC.BaseGhost;
-import Background.*;
+import Background.LoopPlayer;
+import Background.SoundPlayer;
 import Core.Map.MapData;
 import Entities.*;
 import Helpers.ImageHelper;
@@ -20,20 +21,20 @@ public class PacBoard extends JPanel {
     public Point ghostBase;
     public int m_x;
     public int m_y;
+    public int[][] map;
+    public Pacman pacman;
+    public boolean isCustom = false;
     Timer redrawTimer;
     ActionListener redrawAL;
-    public int[][] map;
     Image[] mapSegments;
     Image foodImage;
     Image[] pfoodImage;
     Image goImage;
     Image vicImage;
-    public Pacman pacman;
     ArrayList<Food> foods;
     ArrayList<PowerUpFood> pufoods;
     ArrayList<BaseGhost> ghosts;
     ArrayList<TeleportTunnel> teleports;
-    public boolean isCustom = false;
     boolean isGameOver = false;
     boolean isWin = false;
     boolean drawScore = false;
@@ -220,23 +221,20 @@ public class PacBoard extends JPanel {
         }
         if (puFoodToEat != null) {
             //SoundPlayer.play("pacman_eat.wav");
-            switch (puFoodToEat.type) {
-                case 0:
-                    //PACMAN 6
-                    pufoods.remove(puFoodToEat);
-                    siren.stop();
-                    mustReactivateSiren = true;
-                    pac6.start();
-                    for (BaseGhost g : ghosts) {
-                        g.weaken();
-                    }
-                    scoreToAdd = 0;
-                    break;
-                default:
-                    SoundPlayer.play("pacman_eatfruit.wav");
-                    pufoods.remove(puFoodToEat);
-                    scoreToAdd = 1;
-                    drawScore = true;
+            if (puFoodToEat.type == 0) {//PACMAN 6
+                pufoods.remove(puFoodToEat);
+                siren.stop();
+                mustReactivateSiren = true;
+                pac6.start();
+                for (BaseGhost g : ghosts) {
+                    g.weaken();
+                }
+                scoreToAdd = 0;
+            } else {
+                SoundPlayer.play("pacman_eatfruit.wav");
+                pufoods.remove(puFoodToEat);
+                scoreToAdd = 1;
+                drawScore = true;
             }
             //score ++;
             //scoreboard.setText("    Score : "+score);
@@ -264,6 +262,7 @@ public class PacBoard extends JPanel {
         for (BaseGhost g : ghosts) {
             if (g.isWeak()) {
                 isSiren = false;
+                break;
             }
         }
         if (isSiren) {

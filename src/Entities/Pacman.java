@@ -17,21 +17,21 @@ import java.nio.file.Paths;
 
 public class Pacman implements KeyListener {
 
+    private final PacBoard parentBoard;
     public MoveType activeMove;
     public Point pixelPosition;
     public Point logicalPosition;
     //Move Vars
     public Timer moveTimer;
+    //Animation Vars
+    public Timer animTimer;
     ActionListener moveAL;
     MoveType todoMove;
     boolean isStuck = true;
-    //Animation Vars
-    public Timer animTimer;
     ActionListener animAL;
     Image[] pac;
     int activeImage = 0;
     int addFactor = 1;
-    private final PacBoard parentBoard;
 
 
     public Pacman(int x, int y, PacBoard pb) {
@@ -67,7 +67,6 @@ public class Pacman implements KeyListener {
         };
         animTimer = new Timer(40, animAL);
         animTimer.start();
-
 
         moveAL = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -225,6 +224,4 @@ public class Pacman implements KeyListener {
         }
         //System.out.println(ke.getKeyCode());
     }
-
-
 }
