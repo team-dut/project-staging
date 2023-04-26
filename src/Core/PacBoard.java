@@ -282,59 +282,54 @@ public class PacBoard extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        //DEBUG ONLY !
-        /*for(int ii=0;ii<=m_x;ii++){
-            g.drawLine(ii*28+10,10,ii*28+10,m_y*28+10);
-        }
-        for(int ii=0;ii<=m_y;ii++){
-            g.drawLine(10,ii*28+10,m_x*28+10,ii*28+10);
-        }*/
+        Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
 
         //Draw Walls
-        g.setColor(Color.blue);
+        g2d.setColor(Color.blue);
         for (int i = 0; i < m_x; i++) {
             for (int j = 0; j < m_y; j++) {
                 if (map[i][j] > 0) {
-                    //g.drawImage(10+i*28,10+j*28,28,28);
-                    g.drawImage(mapSegments[map[i][j]], 10 + i * 28, 10 + j * 28, null);
+                    g2d.drawImage(mapSegments[map[i][j]], 10 + i * 28, 10 + j * 28, null);
                 }
             }
         }
 
         //Draw Food
-        g.setColor(new Color(204, 122, 122));
+        g2d.setColor(new Color(204, 122, 122));
         for (Food f : foods) {
             //g.fillOval(f.position.x*28+22,f.position.y*28+22,4,4);
-            g.drawImage(foodImage, 10 + f.position.x * 28, 10 + f.position.y * 28, null);
+            g2d.drawImage(foodImage, 10 + f.position.x * 28, 10 + f.position.y * 28, null);
         }
 
         //Draw PowerUpFoods
-        g.setColor(new Color(204, 174, 168));
+        g2d.setColor(new Color(204, 174, 168));
         for (PowerUpFood f : pufoods) {
             //g.fillOval(f.position.x*28+20,f.position.y*28+20,8,8);
-            g.drawImage(pfoodImage[f.type], 10 + f.position.x * 28, 10 + f.position.y * 28, null);
+            g2d.drawImage(pfoodImage[f.type], 10 + f.position.x * 28, 10 + f.position.y * 28, null);
         }
 
         //Draw Pacman
         switch (pacman.activeMove) {
             case NONE:
             case RIGHT:
-                g.drawImage(pacman.getPacmanImage(), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
+                g2d.drawImage(pacman.getPacmanImage(), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
                 break;
             case LEFT:
-                g.drawImage(ImageHelper.flipHor(pacman.getPacmanImage()), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
+                g2d.drawImage(ImageHelper.flipHor(pacman.getPacmanImage()), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
                 break;
             case DOWN:
-                g.drawImage(ImageHelper.rotate90(pacman.getPacmanImage()), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
+                g2d.drawImage(ImageHelper.rotate90(pacman.getPacmanImage()), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
                 break;
             case UP:
-                g.drawImage(ImageHelper.flipVer(ImageHelper.rotate90(pacman.getPacmanImage())), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
+                g2d.drawImage(ImageHelper.flipVer(ImageHelper.rotate90(pacman.getPacmanImage())), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
                 break;
         }
 
         //Draw Ghosts
         for (BaseGhost gh : ghosts) {
-            g.drawImage(gh.getGhostImage(), 10 + gh.pixelPosition.x, 10 + gh.pixelPosition.y, null);
+            g2d.drawImage(gh.getGhostImage(), 10 + gh.pixelPosition.x, 10 + gh.pixelPosition.y, null);
         }
 
         if (clearScore) {
@@ -349,26 +344,25 @@ public class PacBoard extends JPanel {
 
         if (drawScore) {
             //System.out.println("must draw score !");
-            g.setFont(new Font("Arial", Font.BOLD, 15));
-            g.setColor(Color.yellow);
-            Integer s = scoreToAdd * 100;
-            g.drawString(s.toString(), pacman.pixelPosition.x + 13, pacman.pixelPosition.y + 50);
+            g2d.setFont(new Font("Arial", Font.BOLD, 15));
+            g2d.setColor(Color.yellow);
+            int s = scoreToAdd * 100;
+            g2d.drawString(Integer.toString(s), pacman.pixelPosition.x + 13, pacman.pixelPosition.y + 50);
             //drawScore = false;
             score += s;
             scoreboard.setText("    Score : " + score);
             clearScore = true;
-
         }
 
         if (isGameOver) {
-            g.drawImage(goImage, this.getSize().width / 2 - 315, this.getSize().height / 2 - 75, null);
+            g2d.drawImage(goImage, this.getSize().width / 2 - 315, this.getSize().height / 2 - 75, null);
         }
 
         if (isWin) {
-            g.drawImage(vicImage, this.getSize().width / 2 - 315, this.getSize().height / 2 - 75, null);
+            g2d.drawImage(vicImage, this.getSize().width / 2 - 315, this.getSize().height / 2 - 75, null);
         }
 
-
+        g2d.dispose();
     }
 
 
