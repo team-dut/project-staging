@@ -1,6 +1,5 @@
 package Core;
 
-import Core.GhostData;
 import Entities.Food;
 import Entities.PowerUpFood;
 import Entities.TeleportTunnel;
@@ -21,28 +20,10 @@ public class MapData {
     private Point ghostBasePosition;
     private boolean isCustom;
 
-    public MapData() {
-        foodPositions = new ArrayList<>();
-        pufoodPositions = new ArrayList<>();
-        teleports = new ArrayList<>();
-        ghostsData = new ArrayList<>();
-    }
 
     public MapData(int x, int y) {
         this.x = x;
         this.y = y;
-
-        foodPositions = new ArrayList<>();
-        pufoodPositions = new ArrayList<>();
-        teleports = new ArrayList<>();
-        ghostsData = new ArrayList<>();
-    }
-
-    public MapData(int x, int y, int[][] map, Point pacPosition) {
-        this.x = x;
-        this.y = y;
-        this.map = map;
-        pacmanPosition = pacPosition;
 
         foodPositions = new ArrayList<>();
         pufoodPositions = new ArrayList<>();

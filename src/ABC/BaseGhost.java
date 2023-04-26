@@ -94,11 +94,7 @@ public abstract class BaseGhost {
         }
 
         //animation timer
-        animAL = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                activeImage = (activeImage + 1) % 2;
-            }
-        };
+        animAL = evt -> activeImage = (activeImage + 1) % 2;
         animTimer = new Timer(100, animAL);
         animTimer.start();
 
@@ -185,36 +181,28 @@ public abstract class BaseGhost {
         moveTimer = new Timer(ghostDelay, moveAL);
         moveTimer.start();
 
-        unweak1 = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                unWeakenTimer2.start();
-                unWeakenTimer1.stop();
-            }
+        unweak1 = e -> {
+            unWeakenTimer2.start();
+            unWeakenTimer1.stop();
         };
         unWeakenTimer1 = new Timer(7000, unweak1);
 
-        unweak2 = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (unweakBlinks == 10) {
-                    unweaken();
-                    unWeakenTimer2.stop();
-                }
-                isWhite = unweakBlinks % 2 == 0;
-                unweakBlinks++;
+        unweak2 = e -> {
+            if (unweakBlinks == 10) {
+                unweaken();
+                unWeakenTimer2.stop();
             }
+            isWhite = unweakBlinks % 2 == 0;
+            unweakBlinks++;
         };
         unWeakenTimer2 = new Timer(250, unweak2);
 
 
-        pendingAL = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                isPending = false;
-                pendingTimer.stop();
-            }
+        pendingAL = e -> {
+            isPending = false;
+            pendingTimer.stop();
         };
+
         pendingTimer = new Timer(7000, pendingAL);
 
         baseReturner = new BFSFinder(pb);
@@ -311,9 +299,7 @@ public abstract class BaseGhost {
     public void undie() {
         //Shift Left Or Right
         int r = ThreadLocalRandom.current().nextInt(3);
-        if (r == 0) {
-            //Do nothing
-        }
+
         if (r == 1) {
             logicalPosition.x += 1;
             pixelPosition.x += 28;

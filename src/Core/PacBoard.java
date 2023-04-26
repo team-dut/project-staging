@@ -21,7 +21,7 @@ public class PacBoard extends JPanel {
     public int m_y;
     public int[][] map;
     public Pacman pacman;
-    public boolean isCustom = false;
+    public boolean isCustom;
     Timer redrawTimer;
     ActionListener redrawAL;
     Image[] mapSegments;
@@ -110,7 +110,7 @@ public class PacBoard extends JPanel {
         for (int ms = 1; ms < 28; ms++) {
             try {
                 mapSegments[ms] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/map segments/" + ms + ".png")));
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
 
@@ -118,15 +118,14 @@ public class PacBoard extends JPanel {
         for (int ms = 0; ms < 5; ms++) {
             try {
                 pfoodImage[ms] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food/" + ms + ".png")));
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         try {
             foodImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food.png")));
             goImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/gameover.png")));
             vicImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/victory.png")));
-            //pfoodImage = ImageIO.read(this.getClass().getResource("/images/pfood.png"));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         redrawAL = evt -> {
