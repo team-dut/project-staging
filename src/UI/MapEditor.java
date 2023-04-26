@@ -1,20 +1,17 @@
-package Core.Map;
+package UI;
 
 import Core.GhostData;
+import Core.MapData;
 import Entities.Food;
 import Entities.PowerUpFood;
 import Enums.GhostColor;
 import Helpers.StringHelper;
-import UI.PacWindow;
-import UI.TheButton;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MapEditor extends JFrame {
@@ -32,6 +29,7 @@ public class MapEditor extends JFrame {
         JPanel ghostSelection = new JPanel();
         ghostSelection.setLayout(new BoxLayout(ghostSelection, BoxLayout.Y_AXIS));
         ghostSelection.setBackground(Color.black);
+
         JLabel l0 = new JLabel("= : Blank Space (without Food)");
         JLabel l1 = new JLabel("_ : Blank Space (with Food)");
         JLabel l2 = new JLabel("X : Wall");
@@ -42,7 +40,6 @@ public class MapEditor extends JFrame {
         JLabel l7 = new JLabel("3 : Cyan Ghost (Patrol)");
         JLabel l8 = new JLabel("F : Fruit");
         JLabel l9 = new JLabel("B : Ghost Base");
-        //JLabel l4 = new JLabel("1 : Red Ghost (Chaser)");
 
         l0.setForeground(Color.yellow);
         l1.setForeground(Color.yellow);
@@ -71,31 +68,33 @@ public class MapEditor extends JFrame {
         getContentPane().add(sideBar, BorderLayout.EAST);
 
         JTextArea ta = new JTextArea();
+        ta.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         ta.setBackground(Color.black);
         ta.setForeground(Color.yellow);
+
         ta.setText("XXXXXXXXXX\n"
                 + "XP_______X\n"
                 + "X________X\n"
                 + "X________X\n"
                 + "XXXXXXXXXX");
-        ta.setBorder(new CompoundBorder(new CompoundBorder(new EmptyBorder(20, 10, 20, 10), new LineBorder(Color.yellow)), new EmptyBorder(10, 10, 10, 10)));
+
+        ta.setBorder(new CompoundBorder(
+                new CompoundBorder(
+                        new EmptyBorder(20, 10, 20, 10),
+                        new LineBorder(Color.yellow)
+                ),
+                new EmptyBorder(10, 10, 10, 10)
+                )
+        );
         getContentPane().add(ta);
 
-
         TheButton startButton = new TheButton("Start Game");
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new PacWindow(compileMap(ta.getText()));
-            }
-        });
+        startButton.addActionListener(e -> new PacWindow(compileMap(ta.getText())));
         sideBar.add(startButton, BorderLayout.SOUTH);
-        //setLayout(new Grid);
 
         setVisible(true);
     }
 
-    //Resolve Map
     public static MapData compileMap(String input) {
         int mx = input.indexOf('\n');
         int my = StringHelper.countLines(input);
@@ -105,7 +104,6 @@ public class MapEditor extends JFrame {
         customMap.setCustom(true);
         int[][] map = new int[mx][my];
 
-        //Pass Map As Argument
         int i = 0;
         int j = 0;
         for (char c : input.toCharArray()) {
@@ -157,19 +155,10 @@ public class MapEditor extends JFrame {
             }
         }
 
-        //Print map array
-        /*for(int ii=0;ii<my;ii++){
-            for(int jj=0;jj<mx;jj++){
-                System.out.print(map[jj][ii] + " ");
-            }
-            System.out.print('\n');
-        }*/
-
         customMap.setMap(map);
         customMap.setCustom(true);
         System.out.println("Map Read OK !");
         return customMap;
-        //new PacWindow(customMap);
     }
 
 }

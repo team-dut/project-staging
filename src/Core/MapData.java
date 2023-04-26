@@ -1,4 +1,4 @@
-package Core.Map;
+package Core;
 
 import Core.GhostData;
 import Entities.Food;
