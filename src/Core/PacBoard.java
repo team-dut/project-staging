@@ -3,7 +3,6 @@ package Core;
 import ABC.BaseGhost;
 import Background.LoopPlayer;
 import Background.SoundPlayer;
-import Core.Map.MapData;
 import Entities.*;
 import Helpers.ImageHelper;
 import UI.PacWindow;
@@ -11,7 +10,6 @@ import UI.PacWindow;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -84,7 +82,6 @@ public class PacBoard extends JPanel {
             foods = md.getFoodPositions();
         }
 
-
         pufoods = md.getPufoodPositions();
 
         ghosts = new ArrayList<>();
@@ -132,12 +129,9 @@ public class PacBoard extends JPanel {
         } catch (Exception e) {
         }
 
-
-        redrawAL = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                //Draw Board
-                repaint();
-            }
+        redrawAL = evt -> {
+            // Draw Board
+            repaint();
         };
         redrawTimer = new Timer(0, redrawAL);
         redrawTimer.start();
@@ -151,6 +145,7 @@ public class PacBoard extends JPanel {
     private void collisionTest() {
         Rectangle pr = new Rectangle(pacman.pixelPosition.x + 13, pacman.pixelPosition.y + 13, 2, 2);
         BaseGhost ghostToRemove = null;
+
         for (BaseGhost g : ghosts) {
             Rectangle gr = new Rectangle(g.pixelPosition.x, g.pixelPosition.y, 28, 28);
 
@@ -188,7 +183,6 @@ public class PacBoard extends JPanel {
     }
 
     private void update() {
-
         Food foodToEat = null;
         //Check food eat
         for (Food f : foods) {
