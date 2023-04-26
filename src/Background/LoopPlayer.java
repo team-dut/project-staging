@@ -23,7 +23,7 @@ public class LoopPlayer {
 
     public void start() {
         try {
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
+            new Thread(() -> clip.loop(Clip.LOOP_CONTINUOUSLY)).start();
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
