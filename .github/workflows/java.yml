@@ -1,0 +1,44 @@
+name: Create release on commit
+
+on:
+  push:
+    branches: [main]
+  workflow-dispatch:
+
+jobs:
+  jar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Java v8
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'oracle'
+          java-version: '8'
+
+      - name: Build the JAR file
+        run: |
+          cd src
+          javac *.java
+          cd ../
+          jar cvmf  ./src/META-INF/MANIFEST.MF Game.jar -C $(pwd)/src .
+
+      - name: Zip needed resources
+        run: |
+          sudo apt-get install zip
+          zip -r Game.zip Game.jar resources
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          body: |
+            # HOWTO
+            Unzip the Game.zip, you should see the `Game.jar` file and `resources` folder.
+            
+            If that is the case, run `java -jar Game.jar`
+            
+            > Minimum Java version: 8
+          files: Game.zip
