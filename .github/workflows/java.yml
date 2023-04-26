@@ -3,7 +3,10 @@ name: Create release on commit
 on:
   push:
     branches: [main]
-  workflow-dispatch:
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   jar:
@@ -13,9 +16,9 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup Java v8
-      - uses: actions/setup-java@v3
+        uses: actions/setup-java@v3
         with:
-          distribution: 'oracle'
+          distribution: 'temurin'
           java-version: '8'
 
       - name: Build the JAR file
@@ -33,6 +36,8 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: runnable
+          name: Rolling release of the project
           prerelease: true
           body: |
             # HOWTO
