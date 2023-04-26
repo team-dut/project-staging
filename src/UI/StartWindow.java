@@ -3,8 +3,6 @@ package UI;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,6 +13,7 @@ public class StartWindow extends JFrame {
         setSize(600, 300);
         getContentPane().setBackground(Color.black);
         setLocationRelativeTo(null);
+        setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         ImageIcon logo = new ImageIcon();
@@ -24,7 +23,6 @@ public class StartWindow extends JFrame {
             e.printStackTrace();
         }
 
-        //Register Custom fonts
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/crackman.ttf"))));
@@ -37,34 +35,26 @@ public class StartWindow extends JFrame {
 
         JPanel buttonsC = new JPanel();
         buttonsC.setBackground(Color.black);
-        //buttonsC.setLayout(new FlowLayout(FlowLayout.LEADING,20,10));
         buttonsC.setLayout(new BoxLayout(buttonsC, BoxLayout.Y_AXIS));
+
         TheButton startButton = new TheButton("Start Game");
-        // TheButton customButton = new TheButton("Customize Game");
+        TheButton customButton = new TheButton("Custom Game");
 
         startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        // customButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        customButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new PacWindow();
-                dispose();
-            }
+        startButton.addActionListener(e -> {
+            new PacWindow();
+            dispose();
         });
 
-        /*
-        customButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new MapEditor();
-                dispose();
-            }
+        customButton.addActionListener(e -> {
+            new MapEditor();
+            dispose();
         });
-        */
 
         buttonsC.add(startButton);
-        // buttonsC.add(customButton);
+        buttonsC.add(customButton);
 
         getContentPane().add(buttonsC);
 
