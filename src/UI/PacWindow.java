@@ -1,7 +1,6 @@
 package UI;
 
-import Core.Map.MapData;
-import Core.Map.MapEditor;
+import Core.MapData;
 import Core.PacBoard;
 
 import javax.swing.*;
@@ -14,87 +13,50 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class PacWindow extends JFrame {
-
     public PacWindow() {
-        setTitle("2000 ly Lipton sua dau?");
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        getContentPane().setBackground(Color.black);
-
-        setSize(794, 884);
-        setLocationRelativeTo(null);
+        preMapLoadConfigure();
 
         JLabel scoreboard = new JLabel("    Score : 0");
         scoreboard.setForeground(new Color(255, 243, 36));
 
-        MapData map1 = getMapFromResource("resources/maps/map1_c.txt");
-        adjustMap(map1);
+        MapData map = getMapFromResource("resources/maps/map1_c.txt");
+        adjustMap(map);
 
-        /*map1.getTeleports().add(new TeleportTunnel(-1,14,27,14,moveType.LEFT));
-        map1.getTeleports().add(new TeleportTunnel(27,14,-1,14,moveType.RIGHT));
-        map1.getGhostsData().add(new GhostData(12,17,ghostType.RED));
-        map1.getGhostsData().add(new GhostData(17,14,ghostType.RED));
-        map1.getGhostsData().add(new GhostData(17,10,ghostType.PINK));
-        map1.getGhostsData().add(new GhostData(5,27,ghostType.CYAN));
-        map1.getGhostsData().add(new GhostData(3,5,ghostType.PINK));
-        map1.getGhostsData().add(new GhostData(20,5,ghostType.CYAN));
-        map1.getPufoodPositions().add(new PowerUpFood(12,14,0));
-        map1.getPufoodPositions().add(new PowerUpFood(25,27,3));
-        map1.getPufoodPositions().add(new PowerUpFood(24,27,2));
-        map1.getPufoodPositions().add(new PowerUpFood(23,27,1));
-        map1.getPufoodPositions().add(new PowerUpFood(22,27,4));
-        map1.getPufoodPositions().add(new PowerUpFood(21,27,0));
-        map1.setGhostBasePosition(new Point(12,14));*/
-
-
-        PacBoard pb = new PacBoard(scoreboard, map1, this);
-
+        PacBoard pb = new PacBoard(scoreboard, map, this);
         pb.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new LineBorder(Color.BLUE)));
-        addKeyListener(pb.pacman);
 
-        this.getContentPane().add(scoreboard, BorderLayout.SOUTH);
-        this.getContentPane().add(pb);
-        setVisible(true);
+        postMapLoadConfigure(scoreboard, pb);
     }
 
     public PacWindow(MapData md) {
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        getContentPane().setBackground(Color.black);
-
-        setSize(794, 884);
-        setLocationRelativeTo(null);
+        preMapLoadConfigure();
 
         JLabel scoreboard = new JLabel("    Score : 0");
         scoreboard.setForeground(new Color(255, 243, 36));
 
-        //int[][] mapLoaded = loadMap(27,29,"/maps/map1.txt");
         adjustMap(md);
         PacBoard pb = new PacBoard(scoreboard, md, this);
         pb.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new LineBorder(Color.BLUE)));
+
+        postMapLoadConfigure(scoreboard, pb);
+    }
+
+    private void preMapLoadConfigure() {
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setResizable(false);
+        getContentPane().setBackground(Color.black);
+
+        setSize(794, 884);
+        setLocationRelativeTo(null);
+    }
+
+    private void postMapLoadConfigure(JLabel scoreboard, PacBoard pb) {
         addKeyListener(pb.pacman);
 
         this.getContentPane().add(scoreboard, BorderLayout.SOUTH);
         this.getContentPane().add(pb);
         setVisible(true);
-    }
-
-
-    public int[][] loadMap(int mx, int my, String relPath) {
-        try {
-            Scanner scn = new Scanner(Files.newInputStream(Paths.get(relPath)));
-            int[][] map;
-            map = new int[mx][my];
-            for (int y = 0; y < my; y++) {
-                for (int x = 0; x < mx; x++) {
-                    map[x][y] = scn.nextInt();
-                }
-            }
-            return map;
-        } catch (Exception e) {
-            System.err.println("Error Reading Map File !");
-        }
-        return null;
     }
 
     public MapData getMapFromResource(String relPath) {
@@ -117,7 +79,6 @@ public class PacWindow extends JFrame {
         return MapEditor.compileMap(mapStr);
     }
 
-    //Dynamically Generate Map Segments
     public void adjustMap(MapData mapd) {
         int[][] map = mapd.getMap();
         int mx = mapd.getX();
@@ -246,12 +207,10 @@ public class PacWindow extends JFrame {
                         mustSet = 18;
                     }
 
-                    //System.out.println("MAP SEGMENT : " + mustSet);
                     map[x][y] = mustSet;
                 }
                 mapd.setMap(map);
             }
         }
-        System.out.println("Map Adjust OK !");
     }
 }
