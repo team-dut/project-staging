@@ -139,7 +139,7 @@ public class PacBoard extends JPanel {
                 repaint();
             }
         };
-        redrawTimer = new Timer(16, redrawAL);
+        redrawTimer = new Timer(0, redrawAL);
         redrawTimer.start();
 
         //SoundPlayer.play("pacman_start.wav");
