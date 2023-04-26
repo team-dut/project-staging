@@ -10,7 +10,7 @@ public class ImageHelper {
     public static Image rotate90(Image i) {
         BufferedImage bi = (BufferedImage) i;
         AffineTransform tx = new AffineTransform();
-        tx.rotate(0.5 * Math.PI, bi.getWidth() / 2, bi.getHeight() / 2);
+        tx.rotate(0.5 * Math.PI, (double) bi.getWidth() / 2, (double) bi.getHeight() / 2);
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
         return op.filter(bi, null);
     }
@@ -30,5 +30,4 @@ public class ImageHelper {
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         return op.filter(bi, null);
     }
-
 }
