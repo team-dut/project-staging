@@ -159,7 +159,7 @@ public class PacBoard extends JPanel {
                     if (!g.isWeak()) {
                         //Game Over
                         siren.stop();
-                        SoundPlayer.play("pacman_lose.wav");
+                        SoundPlayer.playAsync("pacman_lose.wav");
                         pacman.moveTimer.stop();
                         pacman.animTimer.stop();
                         g.moveTimer.stop();
@@ -169,7 +169,7 @@ public class PacBoard extends JPanel {
                         break;
                     } else {
                         //Eat Ghost
-                        SoundPlayer.play("pacman_eatghost.wav");
+                        SoundPlayer.playAsync("pacman_eatghost.wav");
                         //getGraphics().setFont(new Font("Arial",Font.BOLD,20));
                         drawScore = true;
                         scoreToAdd++;
@@ -196,7 +196,7 @@ public class PacBoard extends JPanel {
                 foodToEat = f;
         }
         if (foodToEat != null) {
-            SoundPlayer.play("pacman_eat.wav");
+            SoundPlayer.playAsync("pacman_eat.wav");
             foods.remove(foodToEat);
             score++;
             scoreboard.setText("    Score : " + score);
@@ -204,7 +204,7 @@ public class PacBoard extends JPanel {
             if (foods.size() == 0) {
                 siren.stop();
                 pac6.stop();
-                SoundPlayer.play("pacman_intermission.wav");
+                SoundPlayer.playAsync("pacman_intermission.wav");
                 isWin = true;
                 pacman.moveTimer.stop();
                 for (BaseGhost g : ghosts) {
@@ -231,7 +231,7 @@ public class PacBoard extends JPanel {
                 }
                 scoreToAdd = 0;
             } else {
-                SoundPlayer.play("pacman_eatfruit.wav");
+                SoundPlayer.playAsync("pacman_eatfruit.wav");
                 pufoods.remove(puFoodToEat);
                 scoreToAdd = 1;
                 drawScore = true;
