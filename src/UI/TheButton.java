@@ -20,11 +20,10 @@ public class TheButton extends JLabel implements MouseListener {
         try {
             customFont = Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/crackman.ttf"))).deriveFont(30f);
             this.setFont(customFont);
-        } catch (FontFormatException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (FontFormatException | IOException e) {
             e.printStackTrace();
         }
+
         this.setForeground(Color.yellow);
         this.setOpaque(false);
         this.addMouseListener(this);
