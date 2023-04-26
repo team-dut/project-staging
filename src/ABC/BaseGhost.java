@@ -59,7 +59,6 @@ public abstract class BaseGhost {
     int ghostDeadDelay = 5;
 
     public BaseGhost(int x, int y, PacBoard pb, int ghostDelay) {
-
         logicalPosition = new Point(x, y);
         pixelPosition = new Point(28 * x, 28 * y);
 

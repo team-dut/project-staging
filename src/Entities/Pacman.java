@@ -57,12 +57,10 @@ public class Pacman implements KeyListener {
         }
 
         //animation timer
-        animAL = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                activeImage = activeImage + addFactor;
-                if (activeImage == 4 || activeImage == 0) {
-                    addFactor *= -1;
-                }
+        animAL = evt -> {
+            activeImage = activeImage + addFactor;
+            if (activeImage == 4 || activeImage == 0) {
+                addFactor *= -1;
             }
         };
         animTimer = new Timer(40, animAL);
@@ -108,9 +106,7 @@ public class Pacman implements KeyListener {
                         if ((pixelPosition.x >= (parentBoard.m_x - 1) * 28) && parentBoard.isCustom) {
                             return;
                         }
-                        /*if((logicalPosition.x+1 < parentBoard.m_x) && (parentBoard.map[logicalPosition.x+1][logicalPosition.y]>0)){
-                            return;
-                        }*/
+
                         if (logicalPosition.x >= 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
                             if (parentBoard.map[logicalPosition.x + 1][logicalPosition.y] > 0) {
                                 return;
@@ -122,9 +118,7 @@ public class Pacman implements KeyListener {
                         if ((pixelPosition.x <= 0) && parentBoard.isCustom) {
                             return;
                         }
-                        /*if((logicalPosition.x-1 >= 0) && (parentBoard.map[logicalPosition.x-1][logicalPosition.y]>0)){
-                            return;
-                        }*/
+
                         if (logicalPosition.x > 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
                             if (parentBoard.map[logicalPosition.x - 1][logicalPosition.y] > 0) {
                                 return;
@@ -136,9 +130,7 @@ public class Pacman implements KeyListener {
                         if ((pixelPosition.y <= 0) && parentBoard.isCustom) {
                             return;
                         }
-                        /*if((logicalPosition.y-1 >= 0) && (parentBoard.map[logicalPosition.x][logicalPosition.y-1]>0)){
-                            return;
-                        }*/
+
                         if (logicalPosition.x >= 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
                             if (parentBoard.map[logicalPosition.x][logicalPosition.y - 1] > 0) {
                                 return;
@@ -150,10 +142,12 @@ public class Pacman implements KeyListener {
                         if ((pixelPosition.y >= (parentBoard.m_y - 1) * 28) && parentBoard.isCustom) {
                             return;
                         }
-                        /*if((logicalPosition.y+1 < parentBoard.m_y) && (parentBoard.map[logicalPosition.x][logicalPosition.y+1]>0)){
-                            return;
-                        }*/
-                        if (logicalPosition.x >= 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
+
+                        if (
+                                logicalPosition.x >= 0 &&
+                                        logicalPosition.x < parentBoard.m_x - 1 &&
+                                        logicalPosition.y >= 0 &&
+                                        logicalPosition.y < parentBoard.m_y - 1) {
                             if (parentBoard.map[logicalPosition.x][logicalPosition.y + 1] > 0) {
                                 return;
                             }
@@ -162,18 +156,21 @@ public class Pacman implements KeyListener {
                         break;
                 }
 
-                //send Messege to PacBoard to check collision
                 parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.COLTEST, null));
 
             }
         };
         moveTimer = new Timer(9, moveAL);
         moveTimer.start();
-
     }
 
     public boolean isPossibleMove(MoveType move) {
-        if (logicalPosition.x >= 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
+        if (
+                logicalPosition.x >= 0
+                && logicalPosition.x < parentBoard.m_x - 1
+                && logicalPosition.y >= 0
+                && logicalPosition.y < parentBoard.m_y - 1
+        ) {
             switch (move) {
                 case RIGHT:
                     return !(parentBoard.map[logicalPosition.x + 1][logicalPosition.y] > 0);
@@ -185,6 +182,7 @@ public class Pacman implements KeyListener {
                     return !(parentBoard.map[logicalPosition.x][logicalPosition.y + 1] > 0);
             }
         }
+
         return false;
     }
 
@@ -192,17 +190,6 @@ public class Pacman implements KeyListener {
         return pac[activeImage];
     }
 
-    @Override
-    public void keyReleased(KeyEvent ke) {
-        //
-    }
-
-    @Override
-    public void keyTyped(KeyEvent ke) {
-        //
-    }
-
-    //Handle Arrow Keys
     @Override
     public void keyPressed(KeyEvent ke) {
         switch (ke.getKeyCode()) {
@@ -222,6 +209,11 @@ public class Pacman implements KeyListener {
                 parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.RESET, null));
                 break;
         }
-        //System.out.println(ke.getKeyCode());
     }
+
+    @Override
+    public void keyReleased(KeyEvent keyEvent) {}
+
+    @Override
+    public void keyTyped(KeyEvent keyEvent) {}
 }
