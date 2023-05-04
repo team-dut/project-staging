@@ -15,7 +15,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 public class CyanGhost extends BaseGhost {
-
     MoveType lastCMove;
     MoveType pendMove = MoveType.UP;
 
@@ -29,6 +28,7 @@ public class CyanGhost extends BaseGhost {
         ghostL = new Image[2];
         ghostU = new Image[2];
         ghostD = new Image[2];
+
         try {
             ghostR[0] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/cyan/1.png")));
             ghostR[1] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/cyan/3.png")));

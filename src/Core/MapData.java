@@ -8,11 +8,10 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class MapData {
-
-    private final ArrayList<Food> foodPositions;
-    private final ArrayList<PowerUpFood> pufoodPositions;
+    private final ArrayList<Food> foods;
+    private final ArrayList<PowerUpFood> powerUpFoods;
     private final ArrayList<TeleportTunnel> teleports;
-    private final ArrayList<GhostData> ghostsData;
+    private final ArrayList<GhostData> ghosts;
     private int x;
     private int y;
     private int[][] map;
@@ -20,15 +19,13 @@ public class MapData {
     private Point ghostBasePosition;
     private boolean isCustom;
 
-
     public MapData(int x, int y) {
         this.x = x;
         this.y = y;
-
-        foodPositions = new ArrayList<>();
-        pufoodPositions = new ArrayList<>();
-        teleports = new ArrayList<>();
-        ghostsData = new ArrayList<>();
+        this.foods = new ArrayList<>();
+        this.powerUpFoods = new ArrayList<>();
+        this.teleports = new ArrayList<>();
+        this.ghosts = new ArrayList<>();
     }
 
     public int getX() {
@@ -71,20 +68,20 @@ public class MapData {
         this.ghostBasePosition = ghostBasePosition;
     }
 
-    public ArrayList<Food> getFoodPositions() {
-        return foodPositions;
+    public ArrayList<Food> getFoods() {
+        return foods;
     }
 
-    public ArrayList<PowerUpFood> getPufoodPositions() {
-        return pufoodPositions;
+    public ArrayList<PowerUpFood> getPowerUpFoods() {
+        return powerUpFoods;
     }
 
     public ArrayList<TeleportTunnel> getTeleports() {
         return teleports;
     }
 
-    public ArrayList<GhostData> getGhostsData() {
-        return ghostsData;
+    public ArrayList<GhostData> getGhosts() {
+        return ghosts;
     }
 
     public boolean isCustom() {

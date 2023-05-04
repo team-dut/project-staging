@@ -29,13 +29,11 @@ public class GhostData {
         this.y = y;
     }
 
-    public GhostColor getType() {
+    public GhostColor getColor() {
         return this.color;
     }
 
-    public void setType(GhostColor color) {
+    public void setColor(GhostColor color) {
         this.color = color;
     }
 }
-
-

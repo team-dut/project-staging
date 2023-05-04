@@ -16,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Pacman implements KeyListener {
-
     private final PacBoard parentBoard;
     public MoveType activeMove;
     public Point pixelPosition;
@@ -194,15 +193,19 @@ public class Pacman implements KeyListener {
     public void keyPressed(KeyEvent ke) {
         switch (ke.getKeyCode()) {
             case 37:
+            case 65:
                 todoMove = MoveType.LEFT;
                 break;
             case 38:
+            case 87:
                 todoMove = MoveType.UP;
                 break;
             case 39:
+            case 68:
                 todoMove = MoveType.RIGHT;
                 break;
             case 40:
+            case 83:
                 todoMove = MoveType.DOWN;
                 break;
             case 82:

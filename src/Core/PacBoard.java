@@ -1,7 +1,6 @@
 package Core;
 
 import ABC.BaseGhost;
-import Background.LoopPlayer;
 import Background.SoundPlayer;
 import Entities.*;
 import Helpers.ImageHelper;
@@ -40,9 +39,9 @@ public class PacBoard extends JPanel {
     int scoreToAdd = 0;
     int score;
     JLabel scoreboard;
-    LoopPlayer siren;
+    SoundPlayer siren;
     boolean mustReactivateSiren = false;
-    LoopPlayer pac6;
+    SoundPlayer pac6;
     MapData md_backup;
     PacWindow windowParent;
 
@@ -79,14 +78,14 @@ public class PacBoard extends JPanel {
                 }
             }
         } else {
-            foods = md.getFoodPositions();
+            foods = md.getFoods();
         }
 
-        pufoods = md.getPufoodPositions();
+        pufoods = md.getPowerUpFoods();
 
         ghosts = new ArrayList<>();
-        for (GhostData gd : md.getGhostsData()) {
-            switch (gd.getType()) {
+        for (GhostData gd : md.getGhosts()) {
+            switch (gd.getColor()) {
                 case RED:
                     ghosts.add(new RedGhost(gd.getX(), gd.getY(), this));
                     break;
@@ -136,8 +135,8 @@ public class PacBoard extends JPanel {
         redrawTimer.start();
 
         //SoundPlayer.play("pacman_start.wav");
-        siren = new LoopPlayer("siren.wav");
-        pac6 = new LoopPlayer("pac6.wav");
+        siren = new SoundPlayer("siren.wav");
+        pac6 = new SoundPlayer("pac6.wav");
         siren.start();
     }
 
@@ -153,7 +152,7 @@ public class PacBoard extends JPanel {
                     if (!g.isWeak()) {
                         //Game Over
                         siren.stop();
-                        SoundPlayer.playAsync("pacman_lose.wav");
+                        new SoundPlayer("pacman_lose.wav").start();
                         pacman.moveTimer.stop();
                         pacman.animTimer.stop();
                         g.moveTimer.stop();
@@ -163,7 +162,7 @@ public class PacBoard extends JPanel {
                         break;
                     } else {
                         //Eat Ghost
-                        SoundPlayer.playAsync("pacman_eatghost.wav");
+                        new SoundPlayer("pacman_eatghost.wav").start();
                         //getGraphics().setFont(new Font("Arial",Font.BOLD,20));
                         drawScore = true;
                         scoreToAdd++;
@@ -185,11 +184,11 @@ public class PacBoard extends JPanel {
         Food foodToEat = null;
         //Check food eat
         for (Food f : foods) {
-            if (pacman.logicalPosition.x == f.position.x && pacman.logicalPosition.y == f.position.y)
+            if (pacman.logicalPosition.x == f.getPosition().x && pacman.logicalPosition.y == f.getPosition().y)
                 foodToEat = f;
         }
         if (foodToEat != null) {
-            SoundPlayer.playAsync("pacman_eat.wav");
+            new SoundPlayer("pacman_eat.wav").start();
             foods.remove(foodToEat);
             score++;
             scoreboard.setText("    Score : " + score);
@@ -197,7 +196,7 @@ public class PacBoard extends JPanel {
             if (foods.size() == 0) {
                 siren.stop();
                 pac6.stop();
-                SoundPlayer.playAsync("pacman_intermission.wav");
+                new SoundPlayer("pacman_intermission.wav").start();
                 isWin = true;
                 pacman.moveTimer.stop();
                 for (BaseGhost g : ghosts) {
@@ -224,7 +223,7 @@ public class PacBoard extends JPanel {
                 }
                 scoreToAdd = 0;
             } else {
-                SoundPlayer.playAsync("pacman_eatfruit.wav");
+                new SoundPlayer("pacman_eatfruit.wav").start();
                 pufoods.remove(puFoodToEat);
                 scoreToAdd = 1;
                 drawScore = true;
@@ -236,7 +235,7 @@ public class PacBoard extends JPanel {
         //Check Ghost Undie
         for (BaseGhost g : ghosts) {
             if (g.isDead() && g.logicalPosition.x == ghostBase.x && g.logicalPosition.y == ghostBase.y) {
-                g.undie();
+                g.revive();
             }
         }
 
@@ -293,7 +292,7 @@ public class PacBoard extends JPanel {
         g2d.setColor(new Color(204, 122, 122));
         for (Food f : foods) {
             //g.fillOval(f.position.x*28+22,f.position.y*28+22,4,4);
-            g2d.drawImage(foodImage, 10 + f.position.x * 28, 10 + f.position.y * 28, null);
+            g2d.drawImage(foodImage, 10 + f.getPosition().x * 28, 10 + f.getPosition().y * 28, null);
         }
 
         //Draw PowerUpFoods

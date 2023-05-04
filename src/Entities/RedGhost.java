@@ -41,7 +41,6 @@ public class RedGhost extends BaseGhost {
         }
     }
 
-    //find closest path using BFS
     @Override
     public MoveType getMoveAI() {
         if (isPending) {

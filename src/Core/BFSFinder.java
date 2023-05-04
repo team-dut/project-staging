@@ -4,9 +4,7 @@ import Enums.MoveType;
 
 import java.awt.*;
 
-//Finds Path Between two Maze Points Using Breadth-Frist Search (BFS)
 public class BFSFinder {
-
     int[][] map;
     int mx;
     int my;
@@ -144,5 +142,4 @@ public class BFSFinder {
             return "x = " + x + " y = " + y;
         }
     }
-
 }

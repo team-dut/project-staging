@@ -109,15 +109,15 @@ public class MapEditor extends JFrame {
         for (char c : input.toCharArray()) {
             if (c == '1') {
                 map[i][j] = 0;
-                customMap.getGhostsData().add(new GhostData(i, j, GhostColor.RED));
+                customMap.getGhosts().add(new GhostData(i, j, GhostColor.RED));
             }
             if (c == '2') {
                 map[i][j] = 0;
-                customMap.getGhostsData().add(new GhostData(i, j, GhostColor.PINK));
+                customMap.getGhosts().add(new GhostData(i, j, GhostColor.PINK));
             }
             if (c == '3') {
                 map[i][j] = 0;
-                customMap.getGhostsData().add(new GhostData(i, j, GhostColor.CYAN));
+                customMap.getGhosts().add(new GhostData(i, j, GhostColor.CYAN));
             }
             if (c == 'P') {
                 map[i][j] = 0;
@@ -131,18 +131,18 @@ public class MapEditor extends JFrame {
             }
             if (c == '_') {
                 map[i][j] = 0;
-                customMap.getFoodPositions().add(new Food(i, j));
+                customMap.getFoods().add(new Food(i, j));
             }
             if (c == '=') {
                 map[i][j] = 0;
             }
             if (c == 'O') {
                 map[i][j] = 0;
-                customMap.getPufoodPositions().add(new PowerUpFood(i, j, 0));
+                customMap.getPowerUpFoods().add(new PowerUpFood(i, j, 0));
             }
             if (c == 'F') {
                 map[i][j] = 0;
-                customMap.getPufoodPositions().add(new PowerUpFood(i, j, ThreadLocalRandom.current().nextInt(4) + 1));
+                customMap.getPowerUpFoods().add(new PowerUpFood(i, j, ThreadLocalRandom.current().nextInt(4) + 1));
             }
             if (c == 'B') {
                 map[i][j] = 0;
