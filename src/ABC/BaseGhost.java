@@ -18,10 +18,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 public abstract class BaseGhost {
-    private BFSFinder bfsFinder;
-    private MoveType pendMove = MoveType.UP;
+    protected final int ghostWeakDelay = 30;
     private final Timer moveTimer;
-    private MoveType activeMove;
     private final Point pixelPosition;
     private final Point logicalPosition;
     protected boolean isStuck = true;
@@ -33,7 +31,8 @@ public abstract class BaseGhost {
     protected Image[] ghostU;
     protected Image[] ghostD;
     protected BFSFinder baseReturner;
-    protected PacBoard parentBoard;
+    protected PacBoard board;
+    protected int ghostNormalDelay;
     //Anim Vars
     Timer animTimer;
     ActionListener animAL;
@@ -47,23 +46,28 @@ public abstract class BaseGhost {
     ActionListener unweak2;
     int unweakBlinks;
     boolean isWhite = false;
-    //Image[] pac;
-    Image ghostImg;
-    int activeImage = 0;
-    int addFactor = 1;
-    Image[] ghostW;
-    Image[] ghostWW;
-    Image ghostEye;
 
-    protected final int ghostNormalDelay = 15;
-    protected final int ghostWeakDelay = 30;
-    protected final int ghostDeadDelay = 5;
+    private final Image[] ghostW = {
+            ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/blue/1.png")))),
+            ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/blue/3.png")))),
+    };
 
-    public BaseGhost(int x, int y, PacBoard pb, int ghostDelay) {
+    private final Image[] ghostWW = {
+            ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/white/1.png")))),
+            ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/white/3.png")))
+    };
+
+    private final Image ghostEye = ImageIO.read(Files.newInputStream(Paths.get("resources/images/eye.png")));;
+    private BFSFinder bfsFinder;
+    private MoveType pendingMove = MoveType.UP;
+    private MoveType activeMove;
+    private int activeImage = 0;
+
+    public BaseGhost(int x, int y, PacBoard pb, int ghostDelay) throws IOException {
         logicalPosition = new Point(x, y);
         pixelPosition = new Point(28 * x, 28 * y);
 
-        parentBoard = pb;
+        board = pb;
 
         activeMove = MoveType.RIGHT;
 
@@ -71,30 +75,6 @@ public abstract class BaseGhost {
 
         loadImages();
 
-        //load weak Image
-        ghostW = new Image[2];
-        try {
-            ghostW[0] = ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/blue/1.png"))));
-            ghostW[1] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/blue/3.png")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        ghostWW = new Image[2];
-        try {
-            ghostWW[0] = ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/white/1.png"))));
-            ghostWW[1] = ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/white/3.png"))));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            ghostEye = ImageIO.read(Files.newInputStream(Paths.get("resources/images/eye.png")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        //animation timer
         animAL = evt -> activeImage = (activeImage + 1) % 2;
         animTimer = new Timer(100, animAL);
         animTimer.start();
@@ -118,31 +98,25 @@ public abstract class BaseGhost {
                                 logicalPosition.y++;
                                 break;
                         }
-                        parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.UPDATE, null));
+                        board.dispatchEvent(new ActionEvent(this, GameMessage.UPDATE, null));
                     }
 
 
                     activeMove = getMoveAI();
                     isStuck = true;
 
-                    //animTimer.stop();
-                    //System.out.println("LOGICAL POS :" + logicalPosition.x + " , " + logicalPosition.y);
-                    //if(todoMove != moveType.NONE) {
-                    //    activeMove = todoMove;
-                    //    todoMove = moveType.NONE;
-                    //}
                 } else {
                     isStuck = false;
-                    //animTimer.start();
                 }
-                // }
-                //TODO : fix ghost movements
+
+                // FIXME : fix ghost movements
+                // TODO: cleanup code
                 switch (activeMove) {
                     case RIGHT:
-                        if (pixelPosition.x >= (parentBoard.m_x - 1) * 28) {
+                        if (pixelPosition.x >= (board.m_x - 1) * 28) {
                             return;
                         }
-                        if ((logicalPosition.x + 1 < parentBoard.m_x) && (parentBoard.map[logicalPosition.x + 1][logicalPosition.y] > 0) && ((parentBoard.map[logicalPosition.x + 1][logicalPosition.y] < 26) || isPending)) {
+                        if ((logicalPosition.x + 1 < board.m_x) && (board.map[logicalPosition.x + 1][logicalPosition.y] > 0) && ((board.map[logicalPosition.x + 1][logicalPosition.y] < 26) || isPending)) {
                             return;
                         }
                         pixelPosition.x++;
@@ -151,7 +125,7 @@ public abstract class BaseGhost {
                         if (pixelPosition.x <= 0) {
                             return;
                         }
-                        if ((logicalPosition.x - 1 >= 0) && (parentBoard.map[logicalPosition.x - 1][logicalPosition.y] > 0) && ((parentBoard.map[logicalPosition.x - 1][logicalPosition.y] < 26) || isPending)) {
+                        if ((logicalPosition.x - 1 >= 0) && (board.map[logicalPosition.x - 1][logicalPosition.y] > 0) && ((board.map[logicalPosition.x - 1][logicalPosition.y] < 26) || isPending)) {
                             return;
                         }
                         pixelPosition.x--;
@@ -160,25 +134,26 @@ public abstract class BaseGhost {
                         if (pixelPosition.y <= 0) {
                             return;
                         }
-                        if ((logicalPosition.y - 1 >= 0) && (parentBoard.map[logicalPosition.x][logicalPosition.y - 1] > 0) && ((parentBoard.map[logicalPosition.x][logicalPosition.y - 1] < 26) || isPending)) {
+                        if ((logicalPosition.y - 1 >= 0) && (board.map[logicalPosition.x][logicalPosition.y - 1] > 0) && ((board.map[logicalPosition.x][logicalPosition.y - 1] < 26) || isPending)) {
                             return;
                         }
                         pixelPosition.y--;
                         break;
                     case DOWN:
-                        if (pixelPosition.y >= (parentBoard.m_y - 1) * 28) {
+                        if (pixelPosition.y >= (board.m_y - 1) * 28) {
                             return;
                         }
-                        if ((logicalPosition.y + 1 < parentBoard.m_y) && (parentBoard.map[logicalPosition.x][logicalPosition.y + 1] > 0) && ((parentBoard.map[logicalPosition.x][logicalPosition.y + 1] < 26) || isPending)) {
+                        if ((logicalPosition.y + 1 < board.m_y) && (board.map[logicalPosition.x][logicalPosition.y + 1] > 0) && ((board.map[logicalPosition.x][logicalPosition.y + 1] < 26) || isPending)) {
                             return;
                         }
                         pixelPosition.y++;
                         break;
                 }
 
-                parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.COLTEST, null));
+                board.dispatchEvent(new ActionEvent(this, GameMessage.COLOR_TEST, null));
             }
         };
+
         moveTimer = new Timer(ghostDelay, moveAL);
         moveTimer.start();
 
@@ -207,66 +182,73 @@ public abstract class BaseGhost {
         pendingTimer = new Timer(7000, pendingAL);
 
         baseReturner = new BFSFinder(pb);
-        //start AI
+
         activeMove = getMoveAI();
-
     }
 
-    public boolean isWeak() {
-        return isWeak;
-    }
-
-    public boolean isDead() {
-        return isDead;
-    }
-
-    //load Images from Resource
     public abstract void loadImages();
 
-    //get Move Based on AI
     public MoveType getMoveAI() {
-        if (isPending) {
-            if (isStuck) {
-                if (pendMove == MoveType.UP) {
-                    pendMove = MoveType.DOWN;
-                } else if (pendMove == MoveType.DOWN) {
-                    pendMove = MoveType.UP;
+        if (isPending()) {
+            if (isStuck()) {
+                if (getPendingMove() == MoveType.UP) {
+                    setPendingMove(MoveType.DOWN);
+                } else if (getPendingMove() == MoveType.DOWN) {
+                    setPendingMove(MoveType.UP);
                 }
-                return pendMove;
+                return getPendingMove();
             } else {
-                return pendMove;
+                return getPendingMove();
             }
         }
 
-        if ( == null)
-            bfs = new BFSFinder(parentBoard);
+        if (getBfsFinder() == null) setBfsFinder(new BFSFinder(getBoard()));
 
-        if (isDead) {
-            return baseReturner.getMove(logicalPosition.x, logicalPosition.y, parentBoard.ghostBase.x, parentBoard.ghostBase.y);
+        if (getDead()) {
+            return getBaseReturner().getMove(
+                    (int) getLogicalPosition().getX(),
+                    (int) getLogicalPosition().getY(),
+                    (int) getBoard().getGhostBase().getX(),
+                    (int) getBoard().getGhostBase().getY()
+            );
         } else {
-            return bfs.getMove(logicalPosition.x, logicalPosition.y, parentBoard.pacman.logicalPosition.x, parentBoard.pacman.logicalPosition.y);
+            return getBfsFinder()
+                    .getMove(
+                            (int) getLogicalPosition().getX(),
+                            (int) getLogicalPosition().getY(),
+                            (int) getBoard().getPacman().getLogicalPosition().getX(),
+                            (int) getBoard().getPacman().getLogicalPosition().getY()
+                    );
         }
     }
 
-    //get possible Moves
     public ArrayList<MoveType> getPossibleMoves() {
         ArrayList<MoveType> possibleMoves = new ArrayList<>();
+        Point logicalPosition = getLogicalPosition();
+        PacBoard parentBoard = getBoard();
+        int[][] map = parentBoard.getMap();
 
-        if (logicalPosition.x >= 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
-            //System.out.println(this.toString());
-            if (!(parentBoard.map[logicalPosition.x + 1][logicalPosition.y] > 0)) {
+        int x_pos = (int) logicalPosition.getX(), y_pos = (int) logicalPosition.getY();
+
+        if (
+                x_pos >= 0
+                        && x_pos < parentBoard.m_x - 1
+                        && y_pos >= 0
+                        && y_pos < parentBoard.m_y - 1
+        ) {
+            if (!(map[x_pos + 1][y_pos] > 0)) {
                 possibleMoves.add(MoveType.RIGHT);
             }
 
-            if (!(parentBoard.map[logicalPosition.x - 1][logicalPosition.y] > 0)) {
+            if (!(map[x_pos - 1][y_pos] > 0)) {
                 possibleMoves.add(MoveType.LEFT);
             }
 
-            if (!(parentBoard.map[logicalPosition.x][logicalPosition.y - 1] > 0)) {
+            if (!(map[x_pos][y_pos] > 0)) {
                 possibleMoves.add(MoveType.UP);
             }
 
-            if (!(parentBoard.map[logicalPosition.x][logicalPosition.y + 1] > 0)) {
+            if (!(map[x_pos][y_pos] > 0)) {
                 possibleMoves.add(MoveType.DOWN);
             }
         }
@@ -275,9 +257,17 @@ public abstract class BaseGhost {
     }
 
     public Image getGhostImage() {
+        int activeImage = getActiveImage();
+        Image[] ghostL = getGhostL(),
+                ghostR = getGhostR(),
+                ghostU = getGhostU(),
+                ghostD = getGhostD(),
+                ghostW = getGhostW(),
+                ghostWW = getGhostWW();
+
         if (!getDead()) {
             if (!getWeak()) {
-                switch (activeMove) {
+                switch (getActiveMove()) {
                     case RIGHT:
                         return ghostR[activeImage];
                     case LEFT:
@@ -289,23 +279,79 @@ public abstract class BaseGhost {
                 }
                 return ghostR[activeImage];
             } else {
-                if (isWhite) {
+                if (isWhite()) {
                     return ghostWW[activeImage];
                 } else {
                     return ghostW[activeImage];
                 }
             }
         } else {
-            return ghostEye;
+            return getGhostEye();
         }
     }
 
     public void weaken() {
         setWeak(true);
         getMoveTimer().setDelay(getGhostWeakDelay());
-        unweakBlinks = 0;
-        isWhite = false;
+        setUnweakBlinks(0);
+        setWhite(false);
         unWeakenTimer1.start();
+    }
+
+    public Image getGhostEye() {return ghostEye;}
+
+    public boolean isWhite() { return isWhite; }
+
+    public void setWhite(boolean white) {
+        isWhite = white;
+    }
+
+    public Image[] getGhostL() {
+        return ghostL;
+    }
+
+    public Image[] getGhostR() {
+        return ghostR;
+    }
+
+    public Image[] getGhostU() {
+        return ghostU;
+    }
+
+    public Image[] getGhostD() {
+        return ghostD;
+    }
+
+    public Image[] getGhostW() {
+        return ghostW;
+    }
+
+    public Image[] getGhostWW() {
+        return ghostWW;
+    }
+
+    public int getActiveImage() {
+        return activeImage;
+    }
+
+    public void setActiveImage(int activeImage) {
+        this.activeImage = activeImage;
+    }
+
+    public MoveType getActiveMove() {
+        return activeMove;
+    }
+
+    public void setActiveMove(MoveType activeMove) {
+        this.activeMove = activeMove;
+    }
+
+    public int getUnweakBlinks() {
+        return unweakBlinks;
+    }
+
+    public void setUnweakBlinks(int unweakBlinks) {
+        this.unweakBlinks = unweakBlinks;
     }
 
     public int getGhostWeakDelay() {
@@ -351,12 +397,18 @@ public abstract class BaseGhost {
         return pixelPosition;
     }
 
-    public boolean getDead() { return isDead; }
+    public boolean getDead() {
+        return isDead;
+    }
+
     public void setDead(boolean dead) {
         isDead = dead;
     }
 
-    public boolean getWeak() { return isWeak; }
+    public boolean getWeak() {
+        return isWeak;
+    }
+
     public void setWeak(boolean weak) {
         isWeak = weak;
     }
@@ -375,5 +427,37 @@ public abstract class BaseGhost {
 
     public int getGhostNormalDelay() {
         return ghostNormalDelay;
+    }
+
+    public BFSFinder getBfsFinder() {
+        return bfsFinder;
+    }
+
+    public void setBfsFinder(BFSFinder bfsFinder) {
+        this.bfsFinder = bfsFinder;
+    }
+
+    public PacBoard getBoard() {
+        return board;
+    }
+
+    public boolean isPending() {
+        return isPending;
+    }
+
+    public boolean isStuck() {
+        return isStuck;
+    }
+
+    public MoveType getPendingMove() {
+        return pendingMove;
+    }
+
+    public void setPendingMove(MoveType pendingMove) {
+        this.pendingMove = pendingMove;
+    }
+
+    public BFSFinder getBaseReturner() {
+        return baseReturner;
     }
 }
