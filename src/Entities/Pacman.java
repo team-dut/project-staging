@@ -7,10 +7,7 @@ import Enums.MoveType;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -249,8 +246,22 @@ public class Pacman implements KeyListener {
             case 83:
                 setTodoMove(MoveType.DOWN);
                 break;
+            case 81:
+                if (!getBoard().getCustom())
+                    getBoard().getWindowParent().dispatchEvent(
+                            new WindowEvent(
+                                    getBoard().getWindowParent(),
+                                    WindowEvent.WINDOW_CLOSING
+                            )
+                    );
+                break;
             case 82:
-                getBoard().dispatchEvent(new ActionEvent(this, GameMessage.RESET, null));
+                if (!getBoard().getCustom())
+                    try {
+                        getBoard().restart();
+                    } catch (IOException | FontFormatException e) {
+                        throw new RuntimeException(e);
+                    }
                 break;
         }
     }

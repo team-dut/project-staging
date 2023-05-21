@@ -114,8 +114,8 @@ public class MapEditor extends JFrame {
         TheButton startButton = new TheButton("Test!");
         startButton.addActionListener(e -> {
             try {
-                PacWindow.getInstance().loadFromMap(compileMap(ta.getText()));
-            } catch (IOException ex) {
+                new PacWindow(compileMap(ta.getText()));
+            } catch (IOException | FontFormatException ex) {
                 throw new RuntimeException(ex);
             }
         });

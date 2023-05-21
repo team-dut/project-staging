@@ -3,6 +3,7 @@ package Core;
 import ABC.BaseGhost;
 import Background.SoundPlayer;
 import Entities.*;
+import Extensions.HistoryExtension;
 import Helpers.ImageHelper;
 import UI.PacWindow;
 
@@ -13,7 +14,12 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class PacBoard extends JPanel {
     private final Image foodImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food.png")));
@@ -23,7 +29,6 @@ public class PacBoard extends JPanel {
     private final SoundPlayer siren;
     private final SoundPlayer pacmanSound;
     private final MapData mapData;
-
     private final PacWindow windowParent;
     private final Point ghostBase;
     private final int m_x;
@@ -31,8 +36,6 @@ public class PacBoard extends JPanel {
     private final int[][] map;
     private final Pacman pacman;
     private final boolean isCustom;
-    private final Timer redrawTimer;
-    private final ActionListener redrawAL;
     private final Image[] mapSegments;
     private final Image[] powerUpFoodImage;
     private ArrayList<Food> foods;
@@ -44,8 +47,24 @@ public class PacBoard extends JPanel {
     private boolean drawScore = false;
     private boolean shouldClearScore = false;
     private int pendingScore = 0;
-    private int score;
+    private int score = 0;
     private boolean shouldPlaySiren = false;
+    private final Instant gameStartTime = Instant.now();
+    private final MapData backupMapData;
+    private final Timer timeUpdateTimer;
+    private Instant gameStopTime;
+
+    public Instant getGameStartTime() {
+        return gameStartTime;
+    }
+
+    public Instant getGameStopTime() {
+        return gameStopTime;
+    }
+
+    public void setGameStopTime(Instant gameStopTime) {
+        this.gameStopTime = gameStopTime;
+    }
 
     public PacBoard(JLabel scoreboard, MapData md, PacWindow pw) throws IOException {
         this.setDoubleBuffered(true);
@@ -55,12 +74,16 @@ public class PacBoard extends JPanel {
         this.m_x = md.getX();
         this.m_y = md.getY();
         this.mapData = md;
+        this.backupMapData = md;
         this.map = md.getMap();
         this.isCustom = md.isCustom();
         this.ghostBase = md.getGhostBasePosition();
 
         this.pacman = new Pacman(md.getPacmanPosition().x, md.getPacmanPosition().y, this);
-        addKeyListener(pacman);
+
+        if (!isCustom) {
+            addKeyListener(pacman);
+        }
 
         this.foods = new ArrayList<>();
         this.powerUpFoods = new ArrayList<>();
@@ -120,14 +143,32 @@ public class PacBoard extends JPanel {
 
         // TODO: set to fixed fps value(s)
         // ex: 60fps ~= 17ms
-        this.redrawAL = evt -> repaint();
-        this.redrawTimer = new Timer(16, redrawAL);
-        this.redrawTimer.start();
+        ActionListener redrawAL = evt -> repaint();
+        Timer redrawTimer = new Timer(16, redrawAL);
+        redrawTimer.start();
+
+        // TODO: cleanup
+        ActionListener timeUpdateAction = e -> {
+            Instant now = Instant.now();
+            Duration duration = Duration.between(getGameStartTime(), now);
+
+            String formattedElapsedTime = String.format("%02d:%02d:%02d", duration.toHours() % 24,
+                    duration.toMinutes() % 60, duration.getSeconds() % 60).trim();
+
+            getWindowParent().getTimeStat().setText("Time: " + formattedElapsedTime);
+        };
+
+        timeUpdateTimer = new Timer(1, timeUpdateAction);
 
         this.siren = new SoundPlayer("siren.wav");
         this.pacmanSound = new SoundPlayer("pac6.wav");
 
+        timeUpdateTimer.start();
         this.siren.start();
+    }
+
+    public Timer getTimeUpdateTimer() {
+        return timeUpdateTimer;
     }
 
     public MapData getMapData() {
@@ -159,13 +200,14 @@ public class PacBoard extends JPanel {
                     if (!g.getWeak()) {
                         getSiren().stop();
                         new SoundPlayer("pacman_lose.wav").start();
+
                         pacman.getMoveTimer().stop();
                         pacman.getAnimateTimer().stop();
                         g.getMoveTimer().stop();
-
+                        getTimeUpdateTimer().stop();
                         setGameOver(true);
-                        getScoreboard().setText("    Press R to try again !");
-
+                        setGameStopTime(Instant.now());
+                        historyUpdate("lose");
                         break;
                     } else {
                         new SoundPlayer("pacman_eatghost.wav").start();
@@ -182,6 +224,25 @@ public class PacBoard extends JPanel {
         }
 
         if (ghostToRemove != null) getGhosts().remove(ghostToRemove);
+    }
+
+    private void historyUpdate(String gameStatus) {
+        int dialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save this run?","History save", JOptionPane.YES_NO_OPTION);
+
+        if(dialogResult == JOptionPane.YES_OPTION){
+            String name = JOptionPane.showInputDialog(null, "Your name please!");
+
+            HistoryExtension.getExtension().addHistory(
+                    name,
+                    getScore(),
+                    Duration.between(getGameStartTime(), getGameStopTime()),
+                    getMapData().isCustom() ? "custom" : "normal",
+                    "normal",
+                    gameStatus
+            );
+
+            JOptionPane.showConfirmDialog(null, "Done!");
+        }
     }
 
     private void update() {
@@ -203,7 +264,7 @@ public class PacBoard extends JPanel {
             new SoundPlayer("pacman_eat.wav").start();
             getFoods().remove(foodToEat);
             addScore(10);
-            getScoreboard().setText("    Score : " + getScore());
+            getScoreboard().setText("Score: " + getScore());
 
             if (getFoods().size() == 0) {
                 getSiren().stop();
@@ -212,6 +273,11 @@ public class PacBoard extends JPanel {
                 setWin(true);
 
                 pacman.getMoveTimer().stop();
+                getTimeUpdateTimer().stop();
+
+                setGameStopTime(Instant.now());
+
+                historyUpdate("win");
 
                 for (BaseGhost g : getGhosts()) {
                     g.getMoveTimer().stop();
@@ -416,19 +482,10 @@ public class PacBoard extends JPanel {
         }
 
         if (getShouldDrawScore()) {
-            g2d.setFont(new Font("Arial", Font.BOLD, 15));
-            g2d.setColor(Color.yellow);
-
             int s = getPendingScore() * 100;
 
-            g2d.drawString(
-                    Integer.toString(s),
-                    (int) (pacman.getPixelPosition().getX() + 13),
-                    (int) (pacman.getPixelPosition().getY() + 50)
-            );
-
             addScore(s);
-            getScoreboard().setText("    Score : " + getScore());
+            getScoreboard().setText("Score :" + getScore());
             setShouldClearScore(true);
         }
 
@@ -527,7 +584,6 @@ public class PacBoard extends JPanel {
 
     @Override
     public void processEvent(AWTEvent ae) {
-
         if (ae.getID() == GameMessage.UPDATE) {
             update();
         } else if (ae.getID() == GameMessage.COLLISION_TEST) {
@@ -538,7 +594,7 @@ public class PacBoard extends JPanel {
             if (getGameOver()) {
                 try {
                     restart();
-                } catch (IOException e) {
+                } catch (IOException | FontFormatException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -551,14 +607,16 @@ public class PacBoard extends JPanel {
         return isGameOver;
     }
 
+    public MapData getBackupMapData() {return backupMapData;}
+
     public void setGameOver(boolean gameOver) {
         isGameOver = gameOver;
     }
 
-    public void restart() throws IOException {
+    public void restart() throws IOException, FontFormatException {
         getSiren().stop();
 
-        PacWindow.getInstance().loadFromMap(getMapData());
+        new PacWindow(null);
         getWindowParent().dispose();
     }
 

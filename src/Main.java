@@ -1,4 +1,5 @@
 import Extensions.DiscordExtension;
+import Extensions.HistoryExtension;
 
 import java.io.IOException;
 
@@ -8,6 +9,7 @@ public class Main {
 
         new GameBuilder()
                 .addExtension(DiscordExtension.getExtension())
+                .addExtension(HistoryExtension.getExtension())
                 .start();
     }
 }

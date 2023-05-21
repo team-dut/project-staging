@@ -15,42 +15,48 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class PacWindow extends JFrame {
-    private static PacWindow pacWindow;
-    private MapData mapData;
+    private final JLabel timeStat;
 
-    private PacWindow() {
+    public JLabel getTimeStat() {
+        return timeStat;
     }
 
-    public MapData getMapData() {
-        return mapData;
-    }
-
-    public void setMapData(MapData mapData) {
-        this.mapData = mapData;
-    }
-
-    public static PacWindow getInstance() {
-        if (pacWindow == null) pacWindow = new PacWindow();
-
-        return pacWindow;
-    }
-
-    public void loadFromMap(@Nullable MapData md) throws IOException {
+    public PacWindow(@Nullable MapData md) throws IOException, FontFormatException {
         if (md == null) {
+            // load default map
             md = getMapFromResource("resources/maps/map_default.txt");
+            md.setCustom(false);
         }
 
-        setMapData(md);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         setResizable(false);
         getContentPane().setBackground(Color.black);
 
-        setSize(794, 884);
+        setSize(1200, 884);
         setLocationRelativeTo(null);
 
-        JLabel scoreboard = new JLabel("    Score : 0");
+        JPanel sidePanel = new JPanel();
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+
+        Font customFont = Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/pixeloid_mono.ttf"))).deriveFont(20.5f);
+
+        JLabel scoreboard = new JLabel(md.isCustom() ? "" : "Score: 0");
+        scoreboard.setFont(customFont);
         scoreboard.setForeground(new Color(255, 243, 36));
+
+        timeStat = new JLabel("Time: 00:00:00");
+        timeStat.setFont(customFont);
+        timeStat.setForeground(new Color(255, 243, 36));
+
+        JLabel tooltip = new JLabel(md.isCustom() ? "" : "Press R to restart the game at any time!");
+        tooltip.setFont(customFont);
+        tooltip.setForeground(new Color(255, 243, 36));
+
+        sidePanel.setAlignmentY(Component.RIGHT_ALIGNMENT);
+        sidePanel.setBackground(Color.black);
+        sidePanel.add(scoreboard);
+        sidePanel.add(timeStat);
 
         adjustMap(md);
         PacBoard pb = new PacBoard(scoreboard, md, this);
@@ -58,8 +64,9 @@ public class PacWindow extends JFrame {
 
         addKeyListener(pb.getPacman());
 
-        this.getContentPane().add(scoreboard, BorderLayout.SOUTH);
+        this.getContentPane().add(sidePanel, BorderLayout.EAST);
         this.getContentPane().add(pb);
+        this.getContentPane().add(tooltip, BorderLayout.SOUTH);
         setVisible(true);
     }
 

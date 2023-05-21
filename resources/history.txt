@@ -1,0 +1,2 @@
+21-05-2023 20:21:35,yes,10,00:00:01,normal,normal,lose
+21-05-2023 21:01:03,yes,230,00:00:06,custom,normal,win

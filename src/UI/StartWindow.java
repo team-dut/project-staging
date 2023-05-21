@@ -57,28 +57,37 @@ public class StartWindow extends JFrame {
 
         TheButton startButton = new TheButton("Start Game");
         TheButton customButton = new TheButton("Custom Game");
+        TheButton playHistoryButton = new TheButton("Play History");
 
         startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         customButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        playHistoryButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         startButton.addActionListener(e -> {
             try {
                 getTitleMusicPlayer().stop();
-                PacWindow.getInstance().loadFromMap(null);
-            } catch (IOException ex) {
+                new PacWindow(null);
+            } catch (IOException | FontFormatException ex) {
                 throw new RuntimeException(ex);
             }
-            dispose();
         });
 
         customButton.addActionListener(e -> {
             getTitleMusicPlayer().stop();
             MapEditor.getInstance().pop();
-            dispose();
+        });
+
+        playHistoryButton.addActionListener(e -> {
+            try {
+                PlayHistory.getInstance().pop();
+            } catch (IOException | FontFormatException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         buttonsC.add(startButton, BorderLayout.SOUTH);
         buttonsC.add(customButton, BorderLayout.SOUTH);
+        buttonsC.add(playHistoryButton, BorderLayout.SOUTH);
 
         getContentPane().add(buttonsC, BorderLayout.SOUTH);
 
