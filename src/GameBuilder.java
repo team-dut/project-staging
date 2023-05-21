@@ -20,11 +20,11 @@ public class GameBuilder {
         return this;
     }
 
-    public void start() {
+    public void start() throws IOException {
         System.setProperty("sun.java2d.opengl", "True");
         System.setProperty("sun.java2d.xrender", "True");
 
-        for (BaseExtension ext: getExtensions()) {
+        for (BaseExtension ext : getExtensions()) {
             new Thread(() -> {
                 try {
                     ext.loadExtension();

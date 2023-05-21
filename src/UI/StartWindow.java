@@ -1,5 +1,7 @@
 package UI;
 
+import Background.SoundPlayer;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -9,8 +11,15 @@ import java.nio.file.Paths;
 
 public class StartWindow extends JFrame {
     private static StartWindow startWindow;
+    private final SoundPlayer titleMusicPlayer;
 
     private StartWindow() {
+        titleMusicPlayer = new SoundPlayer("title_music.wav");
+        titleMusicPlayer.start();
+    }
+
+    public SoundPlayer getTitleMusicPlayer() {
+        return titleMusicPlayer;
     }
 
     public static StartWindow getInstance() {
@@ -19,24 +28,22 @@ public class StartWindow extends JFrame {
         return startWindow;
     }
 
-    public void pop() {
-        setSize(600, 300);
-        getContentPane().setBackground(Color.black);
+    public void pop() throws IOException {
+        setSize(new Dimension(728, 410));
+        setContentPane(new JLabel(new ImageIcon("resources/images/banner.jpg")));
         setLocationRelativeTo(null);
         setResizable(false);
+
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         ImageIcon logo = new ImageIcon();
         try {
-            logo = new ImageIcon(ImageIO.read(Files.newInputStream(Paths.get("resources/images/pacman_logo.png"))));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            logo = new ImageIcon(ImageIO.read(Files.newInputStream(Paths.get("resources/images/pacman_logo_new.png"))));
 
-        try {
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/crackman.ttf"))));
-        } catch (IOException | FontFormatException e) {
+            Image image = logo.getImage();
+            Image newImg = image.getScaledInstance(500, 121, java.awt.Image.SCALE_SMOOTH);
+            logo = new ImageIcon(newImg);
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -44,6 +51,7 @@ public class StartWindow extends JFrame {
         getContentPane().add(new JLabel(logo), BorderLayout.NORTH);
 
         JPanel buttonsC = new JPanel();
+        buttonsC.setOpaque(false);
         buttonsC.setBackground(Color.black);
         buttonsC.setLayout(new BoxLayout(buttonsC, BoxLayout.Y_AXIS));
 
@@ -55,7 +63,8 @@ public class StartWindow extends JFrame {
 
         startButton.addActionListener(e -> {
             try {
-                PacWindow.getInstance().loadFromDefaultMap();
+                getTitleMusicPlayer().stop();
+                PacWindow.getInstance().loadFromMap(null);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -63,14 +72,15 @@ public class StartWindow extends JFrame {
         });
 
         customButton.addActionListener(e -> {
+            getTitleMusicPlayer().stop();
             MapEditor.getInstance().pop();
             dispose();
         });
 
-        buttonsC.add(startButton);
-        buttonsC.add(customButton);
+        buttonsC.add(startButton, BorderLayout.SOUTH);
+        buttonsC.add(customButton, BorderLayout.SOUTH);
 
-        getContentPane().add(buttonsC);
+        getContentPane().add(buttonsC, BorderLayout.SOUTH);
 
         setVisible(true);
     }

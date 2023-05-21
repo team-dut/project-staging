@@ -18,7 +18,7 @@ public class TheButton extends JLabel implements MouseListener {
         super(str);
         Font customFont;
         try {
-            customFont = Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/crackman.ttf"))).deriveFont(30f);
+            customFont = Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/pixeloid_mono.ttf"))).deriveFont(30f);
             this.setFont(customFont);
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();

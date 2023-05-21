@@ -1,7 +1,9 @@
 import Extensions.DiscordExtension;
 
+import java.io.IOException;
+
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.err.printf("Current working directory: %s\n", System.getProperty("user.dir"));
 
         new GameBuilder()

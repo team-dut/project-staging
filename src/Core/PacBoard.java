@@ -558,7 +558,7 @@ public class PacBoard extends JPanel {
     public void restart() throws IOException {
         getSiren().stop();
 
-        PacWindow.getInstance().loadFromCustomMap(getMapData());
+        PacWindow.getInstance().loadFromMap(getMapData());
         getWindowParent().dispose();
     }
 

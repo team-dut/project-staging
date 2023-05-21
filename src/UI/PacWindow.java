@@ -2,6 +2,7 @@ package UI;
 
 import Core.MapData;
 import Core.PacBoard;
+import com.sun.istack.internal.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -15,8 +16,17 @@ import java.util.Scanner;
 
 public class PacWindow extends JFrame {
     private static PacWindow pacWindow;
+    private MapData mapData;
 
     private PacWindow() {
+    }
+
+    public MapData getMapData() {
+        return mapData;
+    }
+
+    public void setMapData(MapData mapData) {
+        this.mapData = mapData;
     }
 
     public static PacWindow getInstance() {
@@ -25,12 +35,12 @@ public class PacWindow extends JFrame {
         return pacWindow;
     }
 
-    public void loadFromDefaultMap() throws IOException {
-        MapData map = getMapFromResource("resources/maps/map_default.txt");
-        loadFromCustomMap(map);
-    }
+    public void loadFromMap(@Nullable MapData md) throws IOException {
+        if (md == null) {
+            md = getMapFromResource("resources/maps/map_default.txt");
+        }
 
-    public void loadFromCustomMap(MapData md) throws IOException {
+        setMapData(md);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setResizable(false);

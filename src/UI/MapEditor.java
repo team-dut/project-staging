@@ -12,7 +12,13 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MapEditor extends JFrame {
@@ -30,13 +36,14 @@ public class MapEditor extends JFrame {
     public void pop() {
         setSize(650, 400);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         getContentPane().setBackground(Color.black);
 
         JPanel sideBar = new JPanel();
         sideBar.setLayout(new BorderLayout());
         sideBar.setBackground(Color.black);
+
         JPanel ghostSelection = new JPanel();
         ghostSelection.setLayout(new BoxLayout(ghostSelection, BoxLayout.Y_AXIS));
         ghostSelection.setBackground(Color.black);
@@ -79,15 +86,19 @@ public class MapEditor extends JFrame {
         getContentPane().add(sideBar, BorderLayout.EAST);
 
         JTextArea ta = new JTextArea();
+
         ta.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         ta.setBackground(Color.black);
         ta.setForeground(Color.yellow);
+        ta.setCaretColor(Color.white);
 
-        ta.setText("XXXXXXXXXX\n"
-                + "XP_______X\n"
-                + "X________X\n"
-                + "X________X\n"
-                + "XXXXXXXXXX");
+        ta.setText(
+                "XXXXXXXXXX\n" +
+                        "XP_______X\n" +
+                        "X________X\n" +
+                        "X________X\n" +
+                        "XXXXXXXXXX"
+        );
 
         ta.setBorder(new CompoundBorder(
                         new CompoundBorder(
@@ -97,17 +108,60 @@ public class MapEditor extends JFrame {
                         new EmptyBorder(10, 10, 10, 10)
                 )
         );
+
         getContentPane().add(ta);
 
-        TheButton startButton = new TheButton("Start Game");
+        TheButton startButton = new TheButton("Test!");
         startButton.addActionListener(e -> {
             try {
-                PacWindow.getInstance().loadFromCustomMap(compileMap(ta.getText()));
+                PacWindow.getInstance().loadFromMap(compileMap(ta.getText()));
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
-        sideBar.add(startButton, BorderLayout.SOUTH);
+
+        TheButton openFileButton = new TheButton("Open file");
+        openFileButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.showOpenDialog(null);
+            File selectedFile = fileChooser.getSelectedFile();
+
+            try {
+                String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())), StandardCharsets.UTF_8);
+                ta.setText(content);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        TheButton saveToFileButton = new TheButton("Save to file");
+        saveToFileButton.addActionListener(e -> {
+            try {
+                String content = ta.getText();
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.showSaveDialog(null);
+                File selectedFile = fileChooser.getSelectedFile();
+
+                FileWriter fw = new FileWriter(selectedFile.getAbsolutePath());
+                BufferedWriter out = new BufferedWriter(fw);
+                out.write(content);
+                out.close();
+                fw.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        JPanel buttons = new JPanel();
+
+        buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
+        buttons.setBackground(Color.black);
+
+        buttons.add(openFileButton);
+        buttons.add(saveToFileButton);
+        buttons.add(startButton);
+
+        getContentPane().add(buttons, BorderLayout.SOUTH);
 
         setVisible(true);
     }
@@ -174,8 +228,16 @@ public class MapEditor extends JFrame {
 
         customMap.setMap(map);
         customMap.setCustom(true);
-        System.out.println("Map Read OK !");
         return customMap;
     }
 
+    @Override
+    public void dispose() {
+        try {
+            StartWindow.getInstance().pop();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        super.dispose();
+    }
 }
