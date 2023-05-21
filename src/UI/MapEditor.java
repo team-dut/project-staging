@@ -16,8 +16,18 @@ import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MapEditor extends JFrame {
+    private static MapEditor mapEditor;
 
-    public MapEditor() {
+    private MapEditor() {
+    }
+
+    public static MapEditor getInstance() {
+        if (mapEditor == null) mapEditor = new MapEditor();
+
+        return mapEditor;
+    }
+
+    public void pop() {
         setSize(650, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -92,7 +102,7 @@ public class MapEditor extends JFrame {
         TheButton startButton = new TheButton("Start Game");
         startButton.addActionListener(e -> {
             try {
-                new PacWindow(compileMap(ta.getText()));
+                PacWindow.getInstance().loadFromCustomMap(compileMap(ta.getText()));
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }

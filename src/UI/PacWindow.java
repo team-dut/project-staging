@@ -14,23 +14,30 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class PacWindow extends JFrame {
-    public PacWindow() throws IOException {
-        preMapLoadConfigure();
+    private static PacWindow pacWindow;
 
-        JLabel scoreboard = new JLabel("    Score : 0");
-        scoreboard.setForeground(new Color(255, 243, 36));
-
-        MapData map = getMapFromResource("resources/maps/map1_c.txt");
-        adjustMap(map);
-
-        PacBoard pb = new PacBoard(scoreboard, map, this);
-        pb.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new LineBorder(Color.BLUE)));
-
-        postMapLoadConfigure(scoreboard, pb);
+    private PacWindow() {
     }
 
-    public PacWindow(MapData md) throws IOException {
-        preMapLoadConfigure();
+    public static PacWindow getInstance() {
+        if (pacWindow == null) pacWindow = new PacWindow();
+
+        return pacWindow;
+    }
+
+    public void loadFromDefaultMap() throws IOException {
+        MapData map = getMapFromResource("resources/maps/map_default.txt");
+        loadFromCustomMap(map);
+    }
+
+    public void loadFromCustomMap(MapData md) throws IOException {
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setResizable(false);
+        getContentPane().setBackground(Color.black);
+
+        setSize(794, 884);
+        setLocationRelativeTo(null);
 
         JLabel scoreboard = new JLabel("    Score : 0");
         scoreboard.setForeground(new Color(255, 243, 36));
@@ -39,20 +46,6 @@ public class PacWindow extends JFrame {
         PacBoard pb = new PacBoard(scoreboard, md, this);
         pb.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new LineBorder(Color.BLUE)));
 
-        postMapLoadConfigure(scoreboard, pb);
-    }
-
-    private void preMapLoadConfigure() {
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        setResizable(false);
-        getContentPane().setBackground(Color.black);
-
-        setSize(794, 884);
-        setLocationRelativeTo(null);
-    }
-
-    private void postMapLoadConfigure(JLabel scoreboard, PacBoard pb) {
         addKeyListener(pb.getPacman());
 
         this.getContentPane().add(scoreboard, BorderLayout.SOUTH);

@@ -22,6 +22,8 @@ public class PacBoard extends JPanel {
     private final JLabel scoreboard;
     private final SoundPlayer siren;
     private final SoundPlayer pacmanSound;
+    private final MapData mapData;
+
     private final PacWindow windowParent;
     private final Point ghostBase;
     private final int m_x;
@@ -46,24 +48,24 @@ public class PacBoard extends JPanel {
     private boolean shouldPlaySiren = false;
 
     public PacBoard(JLabel scoreboard, MapData md, PacWindow pw) throws IOException {
-        this.scoreboard = scoreboard;
         this.setDoubleBuffered(true);
-        windowParent = pw;
 
-        m_x = md.getX();
-        m_y = md.getY();
+        this.scoreboard = scoreboard;
+        this.windowParent = pw;
+        this.m_x = md.getX();
+        this.m_y = md.getY();
+        this.mapData = md;
         this.map = md.getMap();
-
         this.isCustom = md.isCustom();
         this.ghostBase = md.getGhostBasePosition();
 
-        pacman = new Pacman(md.getPacmanPosition().x, md.getPacmanPosition().y, this);
+        this.pacman = new Pacman(md.getPacmanPosition().x, md.getPacmanPosition().y, this);
         addKeyListener(pacman);
 
-        foods = new ArrayList<>();
-        powerUpFoods = new ArrayList<>();
-        ghosts = new ArrayList<>();
-        teleports = new ArrayList<>();
+        this.foods = new ArrayList<>();
+        this.powerUpFoods = new ArrayList<>();
+        this.ghosts = new ArrayList<>();
+        this.teleports = new ArrayList<>();
 
         if (!isCustom) {
             for (int i = 0; i < m_x; i++) {
@@ -76,9 +78,10 @@ public class PacBoard extends JPanel {
             foods = md.getFoods();
         }
 
-        powerUpFoods = md.getPowerUpFoods();
+        this.powerUpFoods = md.getPowerUpFoods();
+        this.ghosts = new ArrayList<>();
+        this.teleports = md.getTeleports();
 
-        ghosts = new ArrayList<>();
         for (GhostData gd : md.getGhosts()) {
             switch (gd.getColor()) {
                 case RED:
@@ -93,14 +96,13 @@ public class PacBoard extends JPanel {
             }
         }
 
-        teleports = md.getTeleports();
-
         setLayout(null);
         setSize(20 * m_x, 20 * m_y);
         setBackground(Color.black);
 
-        mapSegments = new Image[28];
+        this.mapSegments = new Image[28];
         mapSegments[0] = null;
+
         for (int ms = 1; ms < 28; ms++) {
             try {
                 mapSegments[ms] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/map segments/" + ms + ".png")));
@@ -118,13 +120,18 @@ public class PacBoard extends JPanel {
 
         // TODO: set to fixed fps value(s)
         // ex: 60fps ~= 17ms
-        redrawAL = evt -> repaint();
-        redrawTimer = new Timer(16, redrawAL);
-        redrawTimer.start();
+        this.redrawAL = evt -> repaint();
+        this.redrawTimer = new Timer(16, redrawAL);
+        this.redrawTimer.start();
 
-        siren = new SoundPlayer("siren.wav");
-        pacmanSound = new SoundPlayer("pac6.wav");
-        siren.start();
+        this.siren = new SoundPlayer("siren.wav");
+        this.pacmanSound = new SoundPlayer("pac6.wav");
+
+        this.siren.start();
+    }
+
+    public MapData getMapData() {
+        return mapData;
     }
 
     private void collisionTest() {
@@ -551,7 +558,7 @@ public class PacBoard extends JPanel {
     public void restart() throws IOException {
         getSiren().stop();
 
-        new PacWindow();
+        PacWindow.getInstance().loadFromCustomMap(getMapData());
         getWindowParent().dispose();
     }
 

@@ -8,8 +8,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class StartWindow extends JFrame {
+    private static StartWindow startWindow;
 
-    public StartWindow() {
+    private StartWindow() {
+    }
+
+    public static StartWindow getInstance() {
+        if (startWindow == null) startWindow = new StartWindow();
+
+        return startWindow;
+    }
+
+    public void pop() {
         setSize(600, 300);
         getContentPane().setBackground(Color.black);
         setLocationRelativeTo(null);
@@ -45,7 +55,7 @@ public class StartWindow extends JFrame {
 
         startButton.addActionListener(e -> {
             try {
-                new PacWindow();
+                PacWindow.getInstance().loadFromDefaultMap();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -53,7 +63,7 @@ public class StartWindow extends JFrame {
         });
 
         customButton.addActionListener(e -> {
-            new MapEditor();
+            MapEditor.getInstance().pop();
             dispose();
         });
 

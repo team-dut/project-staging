@@ -34,6 +34,6 @@ public class GameBuilder {
             }).start();
         }
 
-        new StartWindow();
+        StartWindow.getInstance().pop();
     }
 }
