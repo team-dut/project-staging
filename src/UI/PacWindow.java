@@ -8,12 +8,13 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class PacWindow extends JFrame {
-    public PacWindow() {
+    public PacWindow() throws IOException {
         preMapLoadConfigure();
 
         JLabel scoreboard = new JLabel("    Score : 0");
@@ -28,7 +29,7 @@ public class PacWindow extends JFrame {
         postMapLoadConfigure(scoreboard, pb);
     }
 
-    public PacWindow(MapData md) {
+    public PacWindow(MapData md) throws IOException {
         preMapLoadConfigure();
 
         JLabel scoreboard = new JLabel("    Score : 0");
@@ -52,7 +53,7 @@ public class PacWindow extends JFrame {
     }
 
     private void postMapLoadConfigure(JLabel scoreboard, PacBoard pb) {
-        addKeyListener(pb.pacman);
+        addKeyListener(pb.getPacman());
 
         this.getContentPane().add(scoreboard, BorderLayout.SOUTH);
         this.getContentPane().add(pb);

@@ -12,6 +12,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MapEditor extends JFrame {
@@ -79,17 +80,23 @@ public class MapEditor extends JFrame {
                 + "XXXXXXXXXX");
 
         ta.setBorder(new CompoundBorder(
-                new CompoundBorder(
-                        new EmptyBorder(20, 10, 20, 10),
-                        new LineBorder(Color.yellow)
-                ),
-                new EmptyBorder(10, 10, 10, 10)
+                        new CompoundBorder(
+                                new EmptyBorder(20, 10, 20, 10),
+                                new LineBorder(Color.yellow)
+                        ),
+                        new EmptyBorder(10, 10, 10, 10)
                 )
         );
         getContentPane().add(ta);
 
         TheButton startButton = new TheButton("Start Game");
-        startButton.addActionListener(e -> new PacWindow(compileMap(ta.getText())));
+        startButton.addActionListener(e -> {
+            try {
+                new PacWindow(compileMap(ta.getText()));
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         sideBar.add(startButton, BorderLayout.SOUTH);
 
         setVisible(true);
@@ -109,15 +116,15 @@ public class MapEditor extends JFrame {
         for (char c : input.toCharArray()) {
             if (c == '1') {
                 map[i][j] = 0;
-                customMap.getGhostsData().add(new GhostData(i, j, GhostColor.RED));
+                customMap.getGhosts().add(new GhostData(i, j, GhostColor.RED));
             }
             if (c == '2') {
                 map[i][j] = 0;
-                customMap.getGhostsData().add(new GhostData(i, j, GhostColor.PINK));
+                customMap.getGhosts().add(new GhostData(i, j, GhostColor.PINK));
             }
             if (c == '3') {
                 map[i][j] = 0;
-                customMap.getGhostsData().add(new GhostData(i, j, GhostColor.CYAN));
+                customMap.getGhosts().add(new GhostData(i, j, GhostColor.CYAN));
             }
             if (c == 'P') {
                 map[i][j] = 0;
@@ -131,18 +138,18 @@ public class MapEditor extends JFrame {
             }
             if (c == '_') {
                 map[i][j] = 0;
-                customMap.getFoodPositions().add(new Food(i, j));
+                customMap.getFoods().add(new Food(i, j));
             }
             if (c == '=') {
                 map[i][j] = 0;
             }
             if (c == 'O') {
                 map[i][j] = 0;
-                customMap.getPufoodPositions().add(new PowerUpFood(i, j, 0));
+                customMap.getPowerUpFoods().add(new PowerUpFood(i, j, 0));
             }
             if (c == 'F') {
                 map[i][j] = 0;
-                customMap.getPufoodPositions().add(new PowerUpFood(i, j, ThreadLocalRandom.current().nextInt(4) + 1));
+                customMap.getPowerUpFoods().add(new PowerUpFood(i, j, ThreadLocalRandom.current().nextInt(4) + 1));
             }
             if (c == 'B') {
                 map[i][j] = 0;

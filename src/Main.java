@@ -5,7 +5,7 @@ public class Main {
         System.err.printf("Current working directory: %s\n", System.getProperty("user.dir"));
 
         System.setProperty("sun.java2d.opengl", "True");
-
+        System.setProperty("sun.java2d.xrender", "True");
         new StartWindow();
     }
 }

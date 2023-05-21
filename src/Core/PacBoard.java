@@ -1,7 +1,6 @@
 package Core;
 
 import ABC.BaseGhost;
-import Background.LoopPlayer;
 import Background.SoundPlayer;
 import Entities.*;
 import Helpers.ImageHelper;
@@ -11,45 +10,44 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class PacBoard extends JPanel {
-    public Point ghostBase;
-    public int m_x;
-    public int m_y;
-    public int[][] map;
-    public Pacman pacman;
-    public boolean isCustom;
-    Timer redrawTimer;
-    ActionListener redrawAL;
-    Image[] mapSegments;
-    Image foodImage;
-    Image[] pfoodImage;
-    Image goImage;
-    Image vicImage;
-    ArrayList<Food> foods;
-    ArrayList<PowerUpFood> pufoods;
-    ArrayList<BaseGhost> ghosts;
-    ArrayList<TeleportTunnel> teleports;
-    boolean isGameOver = false;
-    boolean isWin = false;
-    boolean drawScore = false;
-    boolean clearScore = false;
-    int scoreToAdd = 0;
-    int score;
-    JLabel scoreboard;
-    LoopPlayer siren;
-    boolean mustReactivateSiren = false;
-    LoopPlayer pac6;
-    MapData md_backup;
-    PacWindow windowParent;
+    private final Image foodImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food.png")));
+    private final Image gameOverImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/gameover.png")));
+    private final Image gameClearImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/victory.png")));
+    private final JLabel scoreboard;
+    private final SoundPlayer siren;
+    private final SoundPlayer pacmanSound;
+    private final PacWindow windowParent;
+    private final Point ghostBase;
+    private final int m_x;
+    private final int m_y;
+    private final int[][] map;
+    private final Pacman pacman;
+    private final boolean isCustom;
+    private final Timer redrawTimer;
+    private final ActionListener redrawAL;
+    private final Image[] mapSegments;
+    private final Image[] powerUpFoodImage;
+    private ArrayList<Food> foods;
+    private ArrayList<PowerUpFood> powerUpFoods;
+    private ArrayList<BaseGhost> ghosts;
+    private ArrayList<TeleportTunnel> teleports;
+    private boolean isGameOver = false;
+    private boolean isWin = false;
+    private boolean drawScore = false;
+    private boolean shouldClearScore = false;
+    private int pendingScore = 0;
+    private int score;
+    private boolean shouldPlaySiren = false;
 
-    public PacBoard(JLabel scoreboard, MapData md, PacWindow pw) {
+    public PacBoard(JLabel scoreboard, MapData md, PacWindow pw) throws IOException {
         this.scoreboard = scoreboard;
         this.setDoubleBuffered(true);
-        md_backup = md;
         windowParent = pw;
 
         m_x = md.getX();
@@ -59,17 +57,13 @@ public class PacBoard extends JPanel {
         this.isCustom = md.isCustom();
         this.ghostBase = md.getGhostBasePosition();
 
-        //loadMap();
-
         pacman = new Pacman(md.getPacmanPosition().x, md.getPacmanPosition().y, this);
         addKeyListener(pacman);
 
         foods = new ArrayList<>();
-        pufoods = new ArrayList<>();
+        powerUpFoods = new ArrayList<>();
         ghosts = new ArrayList<>();
         teleports = new ArrayList<>();
-
-        //TODO : read food from mapData (Map 1)
 
         if (!isCustom) {
             for (int i = 0; i < m_x; i++) {
@@ -79,14 +73,14 @@ public class PacBoard extends JPanel {
                 }
             }
         } else {
-            foods = md.getFoodPositions();
+            foods = md.getFoods();
         }
 
-        pufoods = md.getPufoodPositions();
+        powerUpFoods = md.getPowerUpFoods();
 
         ghosts = new ArrayList<>();
-        for (GhostData gd : md.getGhostsData()) {
-            switch (gd.getType()) {
+        for (GhostData gd : md.getGhosts()) {
+            switch (gd.getColor()) {
                 case RED:
                     ghosts.add(new RedGhost(gd.getX(), gd.getY(), this));
                     break;
@@ -114,60 +108,64 @@ public class PacBoard extends JPanel {
             }
         }
 
-        pfoodImage = new Image[5];
+        powerUpFoodImage = new Image[5];
         for (int ms = 0; ms < 5; ms++) {
             try {
-                pfoodImage[ms] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food/" + ms + ".png")));
+                powerUpFoodImage[ms] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food/" + ms + ".png")));
             } catch (Exception ignored) {
             }
         }
-        try {
-            foodImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food.png")));
-            goImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/gameover.png")));
-            vicImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/victory.png")));
-        } catch (Exception ignored) {
-        }
 
-        redrawAL = evt -> {
-            // Draw Board
-            repaint();
-        };
-        redrawTimer = new Timer(0, redrawAL);
+        // TODO: set to fixed fps value(s)
+        // ex: 60fps ~= 17ms
+        redrawAL = evt -> repaint();
+        redrawTimer = new Timer(16, redrawAL);
         redrawTimer.start();
 
-        //SoundPlayer.play("pacman_start.wav");
-        siren = new LoopPlayer("siren.wav");
-        pac6 = new LoopPlayer("pac6.wav");
+        siren = new SoundPlayer("siren.wav");
+        pacmanSound = new SoundPlayer("pac6.wav");
         siren.start();
     }
 
     private void collisionTest() {
-        Rectangle pr = new Rectangle(pacman.pixelPosition.x + 13, pacman.pixelPosition.y + 13, 2, 2);
+        Pacman pacman = getPacman();
+
+        Rectangle pr = new Rectangle(
+                (int) (pacman.getPixelPosition().getX() + 13),
+                (int) (pacman.getPixelPosition().getY() + 13),
+                2,
+                2
+        );
+
         BaseGhost ghostToRemove = null;
 
-        for (BaseGhost g : ghosts) {
-            Rectangle gr = new Rectangle(g.pixelPosition.x, g.pixelPosition.y, 28, 28);
+        for (BaseGhost g : getGhosts()) {
+            Rectangle gr = new Rectangle(
+                    (int) g.getPixelPosition().getX(),
+                    (int) g.getPixelPosition().getY(),
+                    28,
+                    28
+            );
 
             if (pr.intersects(gr)) {
-                if (!g.isDead()) {
-                    if (!g.isWeak()) {
-                        //Game Over
-                        siren.stop();
-                        SoundPlayer.playAsync("pacman_lose.wav");
-                        pacman.moveTimer.stop();
-                        pacman.animTimer.stop();
-                        g.moveTimer.stop();
-                        isGameOver = true;
-                        scoreboard.setText("    Press R to try again !");
-                        //scoreboard.setForeground(Color.red);
+                if (!g.getDead()) {
+                    if (!g.getWeak()) {
+                        getSiren().stop();
+                        new SoundPlayer("pacman_lose.wav").start();
+                        pacman.getMoveTimer().stop();
+                        pacman.getAnimateTimer().stop();
+                        g.getMoveTimer().stop();
+
+                        setGameOver(true);
+                        getScoreboard().setText("    Press R to try again !");
+
                         break;
                     } else {
-                        //Eat Ghost
-                        SoundPlayer.playAsync("pacman_eatghost.wav");
-                        //getGraphics().setFont(new Font("Arial",Font.BOLD,20));
-                        drawScore = true;
-                        scoreToAdd++;
-                        if (ghostBase != null)
+                        new SoundPlayer("pacman_eatghost.wav").start();
+                        setShouldDrawScore(true);
+                        addPendingScore(1);
+
+                        if (getGhostBase() != null)
                             g.die();
                         else
                             ghostToRemove = g;
@@ -176,261 +174,412 @@ public class PacBoard extends JPanel {
             }
         }
 
-        if (ghostToRemove != null) {
-            ghosts.remove(ghostToRemove);
-        }
+        if (ghostToRemove != null) getGhosts().remove(ghostToRemove);
     }
 
     private void update() {
         Food foodToEat = null;
-        //Check food eat
-        for (Food f : foods) {
-            if (pacman.logicalPosition.x == f.position.x && pacman.logicalPosition.y == f.position.y)
-                foodToEat = f;
-        }
-        if (foodToEat != null) {
-            SoundPlayer.playAsync("pacman_eat.wav");
-            foods.remove(foodToEat);
-            score++;
-            scoreboard.setText("    Score : " + score);
+        Pacman pacman = getPacman();
 
-            if (foods.size() == 0) {
-                siren.stop();
-                pac6.stop();
-                SoundPlayer.playAsync("pacman_intermission.wav");
-                isWin = true;
-                pacman.moveTimer.stop();
-                for (BaseGhost g : ghosts) {
-                    g.moveTimer.stop();
+        //Check food eat
+        for (Food f : getFoods()) {
+            if (
+                    pacman.getLogicalPosition().getX() == f.getPosition().getX() &&
+                            pacman.getLogicalPosition().getY() == f.getPosition().getY()
+            ) {
+                foodToEat = f;
+                break;
+            }
+        }
+
+        if (foodToEat != null) {
+            new SoundPlayer("pacman_eat.wav").start();
+            getFoods().remove(foodToEat);
+            addScore(10);
+            getScoreboard().setText("    Score : " + getScore());
+
+            if (getFoods().size() == 0) {
+                getSiren().stop();
+                getPacmanSound().stop();
+                new SoundPlayer("pacman_intermission.wav").start();
+                setWin(true);
+
+                pacman.getMoveTimer().stop();
+
+                for (BaseGhost g : getGhosts()) {
+                    g.getMoveTimer().stop();
                 }
             }
         }
 
         PowerUpFood puFoodToEat = null;
-        //Check pu food eat
-        for (PowerUpFood puf : pufoods) {
-            if (pacman.logicalPosition.x == puf.position.x && pacman.logicalPosition.y == puf.position.y)
+
+        for (PowerUpFood puf : getPowerUpFoods()) {
+            if (
+                    pacman.getLogicalPosition().getX() == puf.getPosition().getX() &&
+                            pacman.getLogicalPosition().getY() == puf.getPosition().getY()
+            ) {
                 puFoodToEat = puf;
+                break;
+            }
         }
+
         if (puFoodToEat != null) {
-            //SoundPlayer.play("pacman_eat.wav");
-            if (puFoodToEat.type == 0) {//PACMAN 6
-                pufoods.remove(puFoodToEat);
-                siren.stop();
-                mustReactivateSiren = true;
-                pac6.start();
-                for (BaseGhost g : ghosts) {
+            // TODO: unmagic the number
+            if (puFoodToEat.getType() == 0) {
+                getPowerUpFoods().remove(puFoodToEat);
+                getSiren().stop();
+                setShouldPlaySiren(true);
+                getPacmanSound().start();
+                for (BaseGhost g : getGhosts()) {
                     g.weaken();
                 }
-                scoreToAdd = 0;
+                setPendingScore(0);
             } else {
-                SoundPlayer.playAsync("pacman_eatfruit.wav");
-                pufoods.remove(puFoodToEat);
-                scoreToAdd = 1;
-                drawScore = true;
-            }
-            //score ++;
-            //scoreboard.setText("    Score : "+score);
-        }
-
-        //Check Ghost Undie
-        for (BaseGhost g : ghosts) {
-            if (g.isDead() && g.logicalPosition.x == ghostBase.x && g.logicalPosition.y == ghostBase.y) {
-                g.undie();
+                new SoundPlayer("pacman_eatfruit.wav").start();
+                getPowerUpFoods().remove(puFoodToEat);
+                setPendingScore(1);
+                setShouldDrawScore(true);
             }
         }
 
-        //Check Teleport
-        for (TeleportTunnel tp : teleports) {
-            if (pacman.logicalPosition.x == tp.getFrom().x && pacman.logicalPosition.y == tp.getFrom().y && pacman.activeMove == tp.getReqMove()) {
-                //System.out.println("TELE !");
-                pacman.logicalPosition = tp.getTo();
-                pacman.pixelPosition.x = pacman.logicalPosition.x * 28;
-                pacman.pixelPosition.y = pacman.logicalPosition.y * 28;
+        for (BaseGhost g : getGhosts()) {
+            if (
+                    g.getDead() &&
+                            g.getLogicalPosition().getX() == getGhostBase().getX() &&
+                            g.getLogicalPosition().getY() == getGhostBase().getY()) {
+                g.revive();
+            }
+        }
+
+        for (TeleportTunnel tp : getTeleports()) {
+            if (
+                    pacman.getLogicalPosition().getX() == tp.getFrom().getX() &&
+                            pacman.getLogicalPosition().getY() == tp.getFrom().getY() &&
+                            pacman.getActiveMove() == tp.getReqMove()
+            ) {
+                pacman.setLogicalPosition(tp.getTo());
+                pacman.getPixelPosition().setLocation(
+                        pacman.getLogicalPosition().getX() * 28,
+                        pacman.getLogicalPosition().getY() * 28
+                );
             }
         }
 
         //Check isSiren
         boolean isSiren = true;
-        for (BaseGhost g : ghosts) {
-            if (g.isWeak()) {
+        for (BaseGhost g : getGhosts()) {
+            if (g.getWeak()) {
                 isSiren = false;
                 break;
             }
         }
+
         if (isSiren) {
-            pac6.stop();
-            if (mustReactivateSiren) {
-                mustReactivateSiren = false;
-                siren.start();
+            getPacmanSound().stop();
+            if (getShouldPlaySiren()) {
+                setShouldPlaySiren(false);
+                getSiren().start();
             }
-
         }
-
-
     }
 
+    public boolean getShouldPlaySiren() {
+        return shouldPlaySiren;
+    }
+
+    public void setShouldPlaySiren(boolean shouldPlaySiren) {
+        this.shouldPlaySiren = shouldPlaySiren;
+    }
+
+    public SoundPlayer getPacmanSound() {
+        return pacmanSound;
+    }
+
+    public ArrayList<TeleportTunnel> getTeleports() {
+        return teleports;
+    }
+
+    public ArrayList<Food> getFoods() {
+        return foods;
+    }
+
+    public ArrayList<PowerUpFood> getPowerUpFoods() {
+        return powerUpFoods;
+    }
+
+    public Image getFoodImage() {
+        return foodImage;
+    }
+
+    public Image[] getPowerUpFoodImage() {
+        return powerUpFoodImage;
+    }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        int[][] map = getMap();
+        Image[] mapSegments = getMapSegments();
+
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
 
-        //Draw Walls
-        g2d.setColor(Color.blue);
-        for (int i = 0; i < m_x; i++) {
-            for (int j = 0; j < m_y; j++) {
-                if (map[i][j] > 0) {
+        g2d.setColor(new Color(135, 205, 246));
+
+        for (int i = 0; i < getMaxX(); i++)
+            for (int j = 0; j < getMaxY(); j++)
+                if (map[i][j] > 0)
                     g2d.drawImage(mapSegments[map[i][j]], 10 + i * 28, 10 + j * 28, null);
-                }
-            }
-        }
 
-        //Draw Food
         g2d.setColor(new Color(204, 122, 122));
-        for (Food f : foods) {
-            //g.fillOval(f.position.x*28+22,f.position.y*28+22,4,4);
-            g2d.drawImage(foodImage, 10 + f.position.x * 28, 10 + f.position.y * 28, null);
-        }
 
-        //Draw PowerUpFoods
+        for (Food f : getFoods())
+            g2d.drawImage(
+                    getFoodImage(),
+                    (int) (10 + f.getPosition().getX() * 28),
+                    (int) (10 + f.getPosition().getY() * 28),
+                    null);
+
         g2d.setColor(new Color(204, 174, 168));
-        for (PowerUpFood f : pufoods) {
-            //g.fillOval(f.position.x*28+20,f.position.y*28+20,8,8);
-            g2d.drawImage(pfoodImage[f.type], 10 + f.position.x * 28, 10 + f.position.y * 28, null);
+        for (PowerUpFood pf : getPowerUpFoods()) {
+            g2d.drawImage(
+                    getPowerUpFoodImage()[pf.getType()],
+                    (int) (10 + pf.getPosition().getX() * 28),
+                    (int) (10 + pf.getPosition().getY() * 28),
+                    null
+            );
         }
 
-        //Draw Pacman
-        switch (pacman.activeMove) {
+        Pacman pacman = getPacman();
+
+        switch (pacman.getActiveMove()) {
             case NONE:
             case RIGHT:
-                g2d.drawImage(pacman.getPacmanImage(), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
+                g2d.drawImage(
+                        pacman.getPacmanImage(),
+                        (int) (10 + pacman.getPixelPosition().getX()),
+                        (int) (10 + pacman.getPixelPosition().getY()),
+                        null);
                 break;
             case LEFT:
-                g2d.drawImage(ImageHelper.flipHor(pacman.getPacmanImage()), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
+                g2d.drawImage(
+                        ImageHelper.flipHor(pacman.getPacmanImage()),
+                        (int) (10 + pacman.getPixelPosition().getX()),
+                        (int) (10 + pacman.getPixelPosition().getY()),
+                        null
+                );
                 break;
             case DOWN:
-                g2d.drawImage(ImageHelper.rotate90(pacman.getPacmanImage()), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
+                g2d.drawImage(
+                        ImageHelper.rotate90(pacman.getPacmanImage()),
+                        (int) (10 + pacman.getPixelPosition().getX()),
+                        (int) (10 + pacman.getPixelPosition().getY()),
+                        null
+                );
                 break;
             case UP:
-                g2d.drawImage(ImageHelper.flipVer(ImageHelper.rotate90(pacman.getPacmanImage())), 10 + pacman.pixelPosition.x, 10 + pacman.pixelPosition.y, null);
+                g2d.drawImage(ImageHelper.flipVer(
+                                ImageHelper.rotate90(pacman.getPacmanImage())),
+                        (int) (10 + pacman.getPixelPosition().getX()),
+                        (int) (10 + pacman.getPixelPosition().getY()),
+                        null
+                );
                 break;
         }
 
-        //Draw Ghosts
-        for (BaseGhost gh : ghosts) {
-            g2d.drawImage(gh.getGhostImage(), 10 + gh.pixelPosition.x, 10 + gh.pixelPosition.y, null);
+        for (BaseGhost gh : getGhosts()) {
+            g2d.drawImage(
+                    gh.getGhostImage(),
+                    (int) (10 + gh.getPixelPosition().getX()),
+                    (int) (10 + gh.getPixelPosition().getY()),
+                    null);
         }
 
-        if (clearScore) {
+        if (getShouldClearScore()) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            drawScore = false;
-            clearScore = false;
+            setShouldDrawScore(false);
+            setShouldClearScore(false);
         }
 
-        if (drawScore) {
-            //System.out.println("must draw score !");
+        if (getShouldDrawScore()) {
             g2d.setFont(new Font("Arial", Font.BOLD, 15));
             g2d.setColor(Color.yellow);
-            int s = scoreToAdd * 100;
-            g2d.drawString(Integer.toString(s), pacman.pixelPosition.x + 13, pacman.pixelPosition.y + 50);
-            //drawScore = false;
-            score += s;
-            scoreboard.setText("    Score : " + score);
-            clearScore = true;
+
+            int s = getPendingScore() * 100;
+
+            g2d.drawString(
+                    Integer.toString(s),
+                    (int) (pacman.getPixelPosition().getX() + 13),
+                    (int) (pacman.getPixelPosition().getY() + 50)
+            );
+
+            addScore(s);
+            getScoreboard().setText("    Score : " + getScore());
+            setShouldClearScore(true);
         }
 
-        if (isGameOver) {
-            g2d.drawImage(goImage, this.getSize().width / 2 - 315, this.getSize().height / 2 - 75, null);
+        if (getGameOver()) {
+            g2d.drawImage(
+                    getGameOverImage(),
+                    (int) (this.getSize().getWidth() / 2 - 315),
+                    (int) (this.getSize().getHeight() / 2 - 75),
+                    null
+            );
         }
 
-        if (isWin) {
-            g2d.drawImage(vicImage, this.getSize().width / 2 - 315, this.getSize().height / 2 - 75, null);
+        if (getWin()) {
+            g2d.drawImage(
+                    getGameClearImage(),
+                    (int) (this.getSize().getWidth() / 2 - 315),
+                    (int) (this.getSize().getHeight() / 2 - 75),
+                    null
+            );
         }
 
         g2d.dispose();
     }
 
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void addScore(int value) {
+        setScore(getScore() + value);
+    }
+
+    public int getPendingScore() {
+        return pendingScore;
+    }
+
+    public void setPendingScore(int pendingScore) {
+        this.pendingScore = pendingScore;
+    }
+
+    public void addPendingScore(int value) {
+        setPendingScore(getPendingScore() + value);
+    }
+
+    public JLabel getScoreboard() {
+        return scoreboard;
+    }
+
+    public Image getGameOverImage() {
+        return gameOverImage;
+    }
+
+    public Image getGameClearImage() {
+        return gameClearImage;
+    }
+
+    public boolean getWin() {
+        return isWin;
+    }
+
+    public void setWin(boolean win) {
+        isWin = win;
+    }
+
+    public boolean getShouldDrawScore() {
+        return drawScore;
+    }
+
+    public void setShouldDrawScore(boolean shouldDrawScore) {
+        this.drawScore = shouldDrawScore;
+    }
+
+    public boolean getShouldClearScore() {
+        return shouldClearScore;
+    }
+
+    public void setShouldClearScore(boolean shouldClearScore) {
+        this.shouldClearScore = shouldClearScore;
+    }
+
+    public ArrayList<BaseGhost> getGhosts() {
+        return ghosts;
+    }
+
+    public Image[] getMapSegments() {
+        return mapSegments;
+    }
+
+    public boolean getCustom() {
+        return isCustom;
+    }
 
     @Override
     public void processEvent(AWTEvent ae) {
 
         if (ae.getID() == GameMessage.UPDATE) {
             update();
-        } else if (ae.getID() == GameMessage.COLTEST) {
-            if (!isGameOver) {
+        } else if (ae.getID() == GameMessage.COLLISION_TEST) {
+            if (!getGameOver()) {
                 collisionTest();
             }
         } else if (ae.getID() == GameMessage.RESET) {
-            if (isGameOver)
-                restart();
+            if (getGameOver()) {
+                try {
+                    restart();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         } else {
             super.processEvent(ae);
         }
     }
 
-    public void restart() {
-
-        siren.stop();
-
-        new PacWindow();
-        windowParent.dispose();
-
-        /*
-        removeKeyListener(pacman);
-
-        isGameOver = false;
-
-        pacman = new Pacman(md_backup.getPacmanPosition().x,md_backup.getPacmanPosition().y,this);
-        addKeyListener(pacman);
-
-        foods = new ArrayList<>();
-        pufoods = new ArrayList<>();
-        ghosts = new ArrayList<>();
-        teleports = new ArrayList<>();
-
-        //TODO : read food from mapData (Map 1)
-
-        if(!isCustom) {
-            for (int i = 0; i < m_x; i++) {
-                for (int j = 0; j < m_y; j++) {
-                    if (map[i][j] == 0)
-                        foods.add(new Food(i, j));
-                }
-            }
-        }else{
-            foods = md_backup.getFoodPositions();
-        }
-
-
-
-        pufoods = md_backup.getPufoodPositions();
-
-        ghosts = new ArrayList<>();
-        for(GhostData gd : md_backup.getGhostsData()){
-            switch(gd.getType()) {
-                case RED:
-                    ghosts.add(new RedGhost(gd.getX(), gd.getY(), this));
-                    break;
-                case PINK:
-                    ghosts.add(new PinkGhost(gd.getX(), gd.getY(), this));
-                    break;
-                case CYAN:
-                    ghosts.add(new CyanGhost(gd.getX(), gd.getY(), this));
-                    break;
-            }
-        }
-
-        teleports = md_backup.getTeleports();
-        */
+    public boolean getGameOver() {
+        return isGameOver;
     }
 
+    public void setGameOver(boolean gameOver) {
+        isGameOver = gameOver;
+    }
 
+    public void restart() throws IOException {
+        getSiren().stop();
+
+        new PacWindow();
+        getWindowParent().dispose();
+    }
+
+    public SoundPlayer getSiren() {
+        return siren;
+    }
+
+    public PacWindow getWindowParent() {
+        return windowParent;
+    }
+
+    public int[][] getMap() {
+        return this.map;
+    }
+
+    public Point getGhostBase() {
+        return ghostBase;
+    }
+
+    public Pacman getPacman() {
+        return pacman;
+    }
+
+    public int getMaxX() {
+        return m_x;
+    }
+
+    public int getMaxY() {
+        return m_y;
+    }
 }

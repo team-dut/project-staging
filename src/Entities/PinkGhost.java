@@ -15,11 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 public class PinkGhost extends BaseGhost {
-
-    MoveType lastCMove;
-    MoveType pendMove = MoveType.UP;
-
-    public PinkGhost(int x, int y, PacBoard pb) {
+    public PinkGhost(int x, int y, PacBoard pb) throws IOException {
         super(x, y, pb, 6);
     }
 
@@ -40,34 +36,6 @@ public class PinkGhost extends BaseGhost {
             ghostD[1] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/pink/7.png")));
         } catch (IOException e) {
             System.err.println("Cannot Read Images !");
-        }
-    }
-
-    @Override
-    public MoveType getMoveAI() {
-        if (isPending) {
-            if (isStuck) {
-                if (pendMove == MoveType.UP) {
-                    pendMove = MoveType.DOWN;
-                } else if (pendMove == MoveType.DOWN) {
-                    pendMove = MoveType.UP;
-                }
-                return pendMove;
-            } else {
-                return pendMove;
-            }
-        }
-        if (isDead) {
-            return baseReturner.getMove(logicalPosition.x, logicalPosition.y, parentBoard.ghostBase.x, parentBoard.ghostBase.y);
-        } else {
-            if (lastCMove == null || isStuck) {
-                ArrayList<MoveType> pm = getPossibleMoves();
-                int i = ThreadLocalRandom.current().nextInt(pm.size());
-                lastCMove = pm.get(i);
-                return lastCMove;
-            } else {
-                return lastCMove;
-            }
         }
     }
 }

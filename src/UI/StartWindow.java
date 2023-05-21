@@ -44,7 +44,11 @@ public class StartWindow extends JFrame {
         customButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         startButton.addActionListener(e -> {
-            new PacWindow();
+            try {
+                new PacWindow();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
             dispose();
         });
 

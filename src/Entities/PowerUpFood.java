@@ -1,14 +1,14 @@
 package Entities;
 
-import java.awt.*;
-
-public class PowerUpFood {
-
-    public Point position;
-    public int type; //0-4
+public class PowerUpFood extends Food {
+    private final int type;
 
     public PowerUpFood(int x, int y, int type) {
-        position = new Point(x, y);
+        super(x, y);
         this.type = type;
+    }
+
+    public int getType() {
+        return type;
     }
 }

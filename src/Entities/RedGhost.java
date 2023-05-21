@@ -13,13 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class RedGhost extends BaseGhost {
-
-    BFSFinder bfs;
-    MoveType pendMove = MoveType.UP;
-
-    public RedGhost(int x, int y, PacBoard pb) {
-        super(x, y, pb, 12);
-    }
+    public RedGhost(int x, int y, PacBoard pb) throws IOException {super(x, y, pb, 12);}
 
     @Override
     public void loadImages() {
@@ -38,30 +32,6 @@ public class RedGhost extends BaseGhost {
             ghostD[1] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/red/7.png")));
         } catch (IOException e) {
             System.err.println("Cannot Read Images !");
-        }
-    }
-
-    //find closest path using BFS
-    @Override
-    public MoveType getMoveAI() {
-        if (isPending) {
-            if (isStuck) {
-                if (pendMove == MoveType.UP) {
-                    pendMove = MoveType.DOWN;
-                } else if (pendMove == MoveType.DOWN) {
-                    pendMove = MoveType.UP;
-                }
-                return pendMove;
-            } else {
-                return pendMove;
-            }
-        }
-        if (bfs == null)
-            bfs = new BFSFinder(parentBoard);
-        if (isDead) {
-            return baseReturner.getMove(logicalPosition.x, logicalPosition.y, parentBoard.ghostBase.x, parentBoard.ghostBase.y);
-        } else {
-            return bfs.getMove(logicalPosition.x, logicalPosition.y, parentBoard.pacman.logicalPosition.x, parentBoard.pacman.logicalPosition.y);
         }
     }
 }
