@@ -12,6 +12,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MapEditor extends JFrame {
@@ -79,17 +80,23 @@ public class MapEditor extends JFrame {
                 + "XXXXXXXXXX");
 
         ta.setBorder(new CompoundBorder(
-                new CompoundBorder(
-                        new EmptyBorder(20, 10, 20, 10),
-                        new LineBorder(Color.yellow)
-                ),
-                new EmptyBorder(10, 10, 10, 10)
+                        new CompoundBorder(
+                                new EmptyBorder(20, 10, 20, 10),
+                                new LineBorder(Color.yellow)
+                        ),
+                        new EmptyBorder(10, 10, 10, 10)
                 )
         );
         getContentPane().add(ta);
 
         TheButton startButton = new TheButton("Start Game");
-        startButton.addActionListener(e -> new PacWindow(compileMap(ta.getText())));
+        startButton.addActionListener(e -> {
+            try {
+                new PacWindow(compileMap(ta.getText()));
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         sideBar.add(startButton, BorderLayout.SOUTH);
 
         setVisible(true);

@@ -16,44 +16,30 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Pacman implements KeyListener {
-    private final PacBoard parentBoard;
-    public MoveType activeMove;
-    public Point pixelPosition;
+    private final PacBoard board;
+    private final Image[] pac = {
+            ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac0.png"))),
+            ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac1.png"))),
+            ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac2.png"))),
+            ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac3.png"))),
+            ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac4.png")))
+    };
+    private MoveType activeMove;
     public Point logicalPosition;
+    private final Point pixelPosition;
     //Move Vars
-    public Timer moveTimer;
+    private final Timer moveTimer;
     //Animation Vars
-    public Timer animTimer;
-    ActionListener moveAL;
-    MoveType todoMove;
-    boolean isStuck = true;
-    ActionListener animAL;
-    Image[] pac;
-    int activeImage = 0;
-    int addFactor = 1;
+    private final Timer animateTimer;
 
-
-    public Pacman(int x, int y, PacBoard pb) {
-
+    public Pacman(int x, int y, PacBoard pb) throws IOException {
         logicalPosition = new Point(x, y);
         pixelPosition = new Point(28 * x, 28 * y);
 
-        parentBoard = pb;
-
-        pac = new Image[5];
+        board = pb;
 
         activeMove = MoveType.NONE;
         todoMove = MoveType.NONE;
-
-        try {
-            pac[0] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac0.png")));
-            pac[1] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac1.png")));
-            pac[2] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac2.png")));
-            pac[3] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac3.png")));
-            pac[4] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac4.png")));
-        } catch (IOException e) {
-            System.err.println("Cannot Read Images !");
-        }
 
         //animation timer
         animAL = evt -> {
@@ -62,8 +48,8 @@ public class Pacman implements KeyListener {
                 addFactor *= -1;
             }
         };
-        animTimer = new Timer(40, animAL);
-        animTimer.start();
+        animateTimer = new Timer(40, animAL);
+        animateTimer.start();
 
         moveAL = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -86,10 +72,10 @@ public class Pacman implements KeyListener {
                                 break;
                         }
                         //send update message
-                        parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.UPDATE, null));
+                        board.dispatchEvent(new ActionEvent(this, GameMessage.UPDATE, null));
                     }
                     isStuck = true;
-                    animTimer.stop();
+                    animateTimer.stop();
 
                     if (todoMove != MoveType.NONE && isPossibleMove(todoMove)) {
                         activeMove = todoMove;
@@ -97,57 +83,71 @@ public class Pacman implements KeyListener {
                     }
                 } else {
                     isStuck = false;
-                    animTimer.start();
+                    animateTimer.start();
                 }
 
                 switch (activeMove) {
                     case RIGHT:
-                        if ((pixelPosition.x >= (parentBoard.m_x - 1) * 28) && parentBoard.isCustom) {
+                        if ((pixelPosition.x >= (board.getMaxX() - 1) * 28) && board.getCustom()) {
                             return;
                         }
 
-                        if (logicalPosition.x >= 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
-                            if (parentBoard.map[logicalPosition.x + 1][logicalPosition.y] > 0) {
+                        if (
+                                getLogicalPosition().x >= 0 &&
+                                        getLogicalPosition().x < board.getMaxX() - 1 &&
+                                        getLogicalPosition().y >= 0 &&
+                                        getLogicalPosition().y < board.getMaxY() - 1
+                        ) {
+                            if (board.getMap()[logicalPosition.x + 1][logicalPosition.y] > 0) {
                                 return;
                             }
                         }
                         pixelPosition.x++;
                         break;
                     case LEFT:
-                        if ((pixelPosition.x <= 0) && parentBoard.isCustom) {
+                        if ((pixelPosition.x <= 0) && board.getCustom()) {
                             return;
                         }
 
-                        if (logicalPosition.x > 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
-                            if (parentBoard.map[logicalPosition.x - 1][logicalPosition.y] > 0) {
+                        if (
+                                logicalPosition.x > 0 &&
+                                        logicalPosition.x < board.getMaxX() - 1 &&
+                                        logicalPosition.y >= 0 &&
+                                        logicalPosition.y < board.getMaxY() - 1) {
+                            if (board.getMap()[logicalPosition.x - 1][logicalPosition.y] > 0) {
                                 return;
                             }
                         }
                         pixelPosition.x--;
                         break;
                     case UP:
-                        if ((pixelPosition.y <= 0) && parentBoard.isCustom) {
+                        if ((pixelPosition.y <= 0) && board.getCustom()) {
                             return;
                         }
 
-                        if (logicalPosition.x >= 0 && logicalPosition.x < parentBoard.m_x - 1 && logicalPosition.y >= 0 && logicalPosition.y < parentBoard.m_y - 1) {
-                            if (parentBoard.map[logicalPosition.x][logicalPosition.y - 1] > 0) {
+                        if (
+                                logicalPosition.x >= 0 &&
+                                        logicalPosition.x < board.getMaxX() - 1 &&
+                                        logicalPosition.y >= 0 &&
+                                        logicalPosition.y < board.getMaxY() - 1
+                        ) {
+                            if (board.getMap()[logicalPosition.x][logicalPosition.y - 1] > 0) {
                                 return;
                             }
                         }
                         pixelPosition.y--;
                         break;
                     case DOWN:
-                        if ((pixelPosition.y >= (parentBoard.m_y - 1) * 28) && parentBoard.isCustom) {
+                        if ((pixelPosition.y >= (board.getMaxY() - 1) * 28) && board.getCustom()) {
                             return;
                         }
 
                         if (
                                 logicalPosition.x >= 0 &&
-                                        logicalPosition.x < parentBoard.m_x - 1 &&
+                                        logicalPosition.x < board.getMaxX() - 1 &&
                                         logicalPosition.y >= 0 &&
-                                        logicalPosition.y < parentBoard.m_y - 1) {
-                            if (parentBoard.map[logicalPosition.x][logicalPosition.y + 1] > 0) {
+                                        logicalPosition.y < board.getMaxY() - 1) {
+                            if (board.getMap()[logicalPosition.x][logicalPosition.y + 1] > 0) {
                                 return;
                             }
                         }
@@ -155,7 +155,7 @@ public class Pacman implements KeyListener {
                         break;
                 }
 
-                parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.COLTEST, null));
+                board.dispatchEvent(new ActionEvent(this, GameMessage.COLLISION_TEST, null));
 
             }
         };
@@ -163,30 +163,71 @@ public class Pacman implements KeyListener {
         moveTimer.start();
     }
 
+    ActionListener moveAL;
+    MoveType todoMove;
+    boolean isStuck = true;
+    ActionListener animAL;
+
+    public Timer getMoveTimer() {
+        return moveTimer;
+    }
+
+    int activeImage = 0;
+    int addFactor = 1;
+
+    public Timer getAnimateTimer() {
+        return animateTimer;
+    }
+
+    public Point getPixelPosition() {
+        return pixelPosition;
+    }
+
+    public MoveType getActiveMove() {
+        return activeMove;
+    }
+
     public boolean isPossibleMove(MoveType move) {
+        Point logicalPosition = getLogicalPosition();
+        PacBoard board = getBoard();
+
+        int x_pos = (int) logicalPosition.getX(), y_pos = (int) logicalPosition.getY();
+
         if (
-                logicalPosition.x >= 0
-                && logicalPosition.x < parentBoard.m_x - 1
-                && logicalPosition.y >= 0
-                && logicalPosition.y < parentBoard.m_y - 1
+                x_pos >= 0
+                        && x_pos < board.getMaxX() - 1
+                        && y_pos >= 0
+                        && y_pos < board.getMaxY() - 1
         ) {
             switch (move) {
                 case RIGHT:
-                    return !(parentBoard.map[logicalPosition.x + 1][logicalPosition.y] > 0);
+                    return !(board.getMap()[x_pos + 1][y_pos] > 0);
                 case LEFT:
-                    return !(parentBoard.map[logicalPosition.x - 1][logicalPosition.y] > 0);
+                    return !(board.getMap()[x_pos - 1][y_pos] > 0);
                 case UP:
-                    return !(parentBoard.map[logicalPosition.x][logicalPosition.y - 1] > 0);
+                    return !(board.getMap()[x_pos][y_pos - 1] > 0);
                 case DOWN:
-                    return !(parentBoard.map[logicalPosition.x][logicalPosition.y + 1] > 0);
+                    return !(board.getMap()[x_pos][y_pos + 1] > 0);
             }
         }
 
         return false;
     }
 
+    public PacBoard getBoard() {
+        return board;
+    }
+
+    public Image[] getPac() {
+        return pac;
+    }
+
+    public int getActiveImage() {
+        return activeImage;
+    }
+
     public Image getPacmanImage() {
-        return pac[activeImage];
+        return getPac()[getActiveImage()];
     }
 
     @Override
@@ -194,29 +235,47 @@ public class Pacman implements KeyListener {
         switch (ke.getKeyCode()) {
             case 37:
             case 65:
-                todoMove = MoveType.LEFT;
+                setTodoMove(MoveType.LEFT);
                 break;
             case 38:
             case 87:
-                todoMove = MoveType.UP;
+                setTodoMove(MoveType.UP);
                 break;
             case 39:
             case 68:
-                todoMove = MoveType.RIGHT;
+                setTodoMove(MoveType.RIGHT);
                 break;
             case 40:
             case 83:
-                todoMove = MoveType.DOWN;
+                setTodoMove(MoveType.DOWN);
                 break;
             case 82:
-                parentBoard.dispatchEvent(new ActionEvent(this, GameMessage.RESET, null));
+                getBoard().dispatchEvent(new ActionEvent(this, GameMessage.RESET, null));
                 break;
         }
     }
 
-    @Override
-    public void keyReleased(KeyEvent keyEvent) {}
+    public MoveType getTodoMove() {
+        return todoMove;
+    }
+
+    public void setTodoMove(MoveType todoMove) {
+        this.todoMove = todoMove;
+    }
 
     @Override
-    public void keyTyped(KeyEvent keyEvent) {}
+    public void keyReleased(KeyEvent keyEvent) {
+    }
+
+    @Override
+    public void keyTyped(KeyEvent keyEvent) {
+    }
+
+    public Point getLogicalPosition() {
+        return logicalPosition;
+    }
+
+    public void setLogicalPosition(Point logicalPosition) {
+        this.logicalPosition = logicalPosition;
+    }
 }

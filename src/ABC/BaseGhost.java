@@ -19,7 +19,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class BaseGhost {
     protected final int ghostWeakDelay = 30;
-    private final Timer moveTimer;
     private final Point pixelPosition;
     private final Point logicalPosition;
     protected boolean isStuck = true;
@@ -33,19 +32,21 @@ public abstract class BaseGhost {
     protected BFSFinder baseReturner;
     protected PacBoard board;
     protected int ghostNormalDelay;
-    //Anim Vars
-    Timer animTimer;
-    ActionListener animAL;
+
+    private final Timer animTimer;
+    private final ActionListener animAL;
+    private final ActionListener pendingAL;
+    private final Timer moveTimer;
+    private final ActionListener moveAL;
     //Pending Vars
-    Timer pendingTimer;
-    ActionListener pendingAL;
-    ActionListener moveAL;
-    Timer unWeakenTimer1;
-    Timer unWeakenTimer2;
-    ActionListener unweak1;
-    ActionListener unweak2;
-    int unweakBlinks;
-    boolean isWhite = false;
+    private Timer pendingTimer;
+    private Timer unWeakenTimer1;
+    private Timer unWeakenTimer2;
+    private final ActionListener unweak1;
+    private final ActionListener unweak2;
+
+    private int unweakBlinks;
+    private boolean isWhite = false;
 
     private final Image[] ghostW = {
             ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/blue/1.png")))),
@@ -57,7 +58,7 @@ public abstract class BaseGhost {
             ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/white/3.png")))
     };
 
-    private final Image ghostEye = ImageIO.read(Files.newInputStream(Paths.get("resources/images/eye.png")));;
+    private final Image ghostEye = ImageIO.read(Files.newInputStream(Paths.get("resources/images/eye.png")));
     private BFSFinder bfsFinder;
     private MoveType pendingMove = MoveType.UP;
     private MoveType activeMove;
@@ -113,19 +114,28 @@ public abstract class BaseGhost {
                 // TODO: cleanup code
                 switch (activeMove) {
                     case RIGHT:
-                        if (pixelPosition.x >= (board.m_x - 1) * 28) {
+                        if (pixelPosition.x >= (board.getMaxX() - 1) * 28) {
                             return;
                         }
-                        if ((logicalPosition.x + 1 < board.m_x) && (board.map[logicalPosition.x + 1][logicalPosition.y] > 0) && ((board.map[logicalPosition.x + 1][logicalPosition.y] < 26) || isPending)) {
+                        if (
+                                (logicalPosition.x + 1 < board.getMaxX()) &&
+                                        (board.getMap()[logicalPosition.x + 1][logicalPosition.y] > 0) &&
+                                        ((board.getMap()[logicalPosition.x + 1][logicalPosition.y] < 26) || isPending)
+                        ) {
                             return;
                         }
+
                         pixelPosition.x++;
                         break;
                     case LEFT:
                         if (pixelPosition.x <= 0) {
                             return;
                         }
-                        if ((logicalPosition.x - 1 >= 0) && (board.map[logicalPosition.x - 1][logicalPosition.y] > 0) && ((board.map[logicalPosition.x - 1][logicalPosition.y] < 26) || isPending)) {
+                        if (
+                                (logicalPosition.x - 1 >= 0) &&
+                                        (board.getMap()[logicalPosition.x - 1][logicalPosition.y] > 0) &&
+                                        ((board.getMap()[logicalPosition.x - 1][logicalPosition.y] < 26) || isPending)
+                        ) {
                             return;
                         }
                         pixelPosition.x--;
@@ -134,23 +144,27 @@ public abstract class BaseGhost {
                         if (pixelPosition.y <= 0) {
                             return;
                         }
-                        if ((logicalPosition.y - 1 >= 0) && (board.map[logicalPosition.x][logicalPosition.y - 1] > 0) && ((board.map[logicalPosition.x][logicalPosition.y - 1] < 26) || isPending)) {
+                        if ((logicalPosition.y - 1 >= 0) &&
+                                (board.getMap()[logicalPosition.x][logicalPosition.y - 1] > 0) &&
+                                ((board.getMap()[logicalPosition.x][logicalPosition.y - 1] < 26) || isPending)) {
                             return;
                         }
                         pixelPosition.y--;
                         break;
                     case DOWN:
-                        if (pixelPosition.y >= (board.m_y - 1) * 28) {
+                        if (pixelPosition.y >= (board.getMaxY() - 1) * 28) {
                             return;
                         }
-                        if ((logicalPosition.y + 1 < board.m_y) && (board.map[logicalPosition.x][logicalPosition.y + 1] > 0) && ((board.map[logicalPosition.x][logicalPosition.y + 1] < 26) || isPending)) {
+                        if ((logicalPosition.y + 1 < board.getMaxY()) &&
+                                (board.getMap()[logicalPosition.x][logicalPosition.y + 1] > 0) &&
+                                ((board.getMap()[logicalPosition.x][logicalPosition.y + 1] < 26) || isPending)) {
                             return;
                         }
                         pixelPosition.y++;
                         break;
                 }
 
-                board.dispatchEvent(new ActionEvent(this, GameMessage.COLOR_TEST, null));
+                board.dispatchEvent(new ActionEvent(this, GameMessage.COLLISION_TEST, null));
             }
         };
 
@@ -172,7 +186,6 @@ public abstract class BaseGhost {
             unweakBlinks++;
         };
         unWeakenTimer2 = new Timer(250, unweak2);
-
 
         pendingAL = e -> {
             isPending = false;
@@ -232,9 +245,9 @@ public abstract class BaseGhost {
 
         if (
                 x_pos >= 0
-                        && x_pos < parentBoard.m_x - 1
+                        && x_pos < parentBoard.getMaxX() - 1
                         && y_pos >= 0
-                        && y_pos < parentBoard.m_y - 1
+                        && y_pos < parentBoard.getMaxY() - 1
         ) {
             if (!(map[x_pos + 1][y_pos] > 0)) {
                 possibleMoves.add(MoveType.RIGHT);
