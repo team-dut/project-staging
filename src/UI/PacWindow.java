@@ -2,7 +2,6 @@ package UI;
 
 import Core.MapData;
 import Core.PacBoard;
-import com.sun.istack.internal.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -21,7 +20,7 @@ public class PacWindow extends JFrame {
         return timeStat;
     }
 
-    public PacWindow(@Nullable MapData md) throws IOException, FontFormatException {
+    public PacWindow(MapData md) throws IOException, FontFormatException {
         if (md == null) {
             // load default map
             md = getMapFromResource("resources/maps/map_default.txt");
