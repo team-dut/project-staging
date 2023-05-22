@@ -54,7 +54,7 @@ public class PacWindow extends JFrame {
 
         sidePanel.setAlignmentY(Component.RIGHT_ALIGNMENT);
         sidePanel.setBackground(Color.black);
-        // sidePanel.add(scoreboard);
+        sidePanel.add(scoreboard);
         sidePanel.add(timeStat);
 
         adjustMap(md);

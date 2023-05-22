@@ -59,15 +59,17 @@ public class PlayHistory extends JFrame {
 
                 String date = elements[0];
                 String name = elements[1];
-                String duration = elements[2];
-                String mapType = elements[3];
-                String gameMode = elements[4];
-                String gameResult = elements[5];
+                String score = elements[2];
+                String duration = elements[3];
+                String mapType = elements[4];
+                String gameMode = elements[5];
+                String gameResult = elements[6];
 
                 JLabel label = new JLabel(String.format(
-                        "[%s] -- Name: %s -- Total time: %s -- Map: %s -- Mode: %s -- Result: %s",
+                        "[%s] -- Name: %s -- Score %s -- Total time: %s -- Map: %s -- Mode: %s -- Result: %s",
                         date,
                         name,
+                        score,
                         duration,
                         mapType,
                         gameMode,

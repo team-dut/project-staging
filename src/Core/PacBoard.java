@@ -232,6 +232,7 @@ public class PacBoard extends JPanel {
 
             HistoryExtension.getExtension().addHistory(
                     name,
+                    getScore(),
                     Duration.between(getGameStartTime(), getGameStopTime()),
                     getMapData().isCustom() ? "custom" : "normal",
                     "normal",
@@ -483,7 +484,7 @@ public class PacBoard extends JPanel {
             int s = getPendingScore() * 100;
 
             addScore(s);
-            getScoreboard().setText("Score :" + getScore());
+            getScoreboard().setText("Score: " + getScore());
             setShouldClearScore(true);
         }
 
