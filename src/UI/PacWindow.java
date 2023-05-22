@@ -40,7 +40,7 @@ public class PacWindow extends JFrame {
 
         Font customFont = Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/pixeloid_mono.ttf"))).deriveFont(20.5f);
 
-        JLabel scoreboard = new JLabel("Score: 0");
+        JLabel scoreboard = new JLabel(md.isCustom() ? "" : "Score: 0");
         scoreboard.setFont(customFont);
         scoreboard.setForeground(new Color(255, 243, 36));
 
@@ -48,13 +48,13 @@ public class PacWindow extends JFrame {
         timeStat.setFont(customFont);
         timeStat.setForeground(new Color(255, 243, 36));
 
-        JLabel tooltip = new JLabel(md.isCustom() ? "" : "Press R to restart the game at any time!");
+        JLabel tooltip = new JLabel(md.isCustom() ? "" : "Q: Quit - R: Restart");
         tooltip.setFont(customFont);
         tooltip.setForeground(new Color(255, 243, 36));
 
         sidePanel.setAlignmentY(Component.RIGHT_ALIGNMENT);
         sidePanel.setBackground(Color.black);
-        sidePanel.add(scoreboard);
+        // sidePanel.add(scoreboard);
         sidePanel.add(timeStat);
 
         adjustMap(md);
@@ -103,6 +103,7 @@ public class PacWindow extends JFrame {
                 boolean tr = false;
                 boolean bl = false;
                 boolean br = false;
+
 
                 if (map[x][y] > 0 && map[x][y] < 26) {
                     int mustSet = 0;

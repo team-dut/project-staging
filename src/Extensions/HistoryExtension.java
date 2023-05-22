@@ -12,7 +12,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class HistoryExtension extends BaseExtension {
     private final boolean loaded;
@@ -35,7 +36,7 @@ public class HistoryExtension extends BaseExtension {
 
     private HistoryExtension() { this.loaded = true; }
 
-    public void addHistory(String name, int score, Duration duration, String mapType, String mode, String status) {
+    public void addHistory(String name, Duration duration, String mapType, String mode, String status) {
         // no-op
         if (!isLoaded()) return;
 
@@ -54,7 +55,7 @@ public class HistoryExtension extends BaseExtension {
             String formattedElapsedTime = String.format("%02d:%02d:%02d", duration.toHours() % 24,
                     duration.toMinutes() % 60, duration.getSeconds() % 60).trim();
 
-            rankings.add(String.format("%s,%s,%d,%s,%s,%s,%s", formattedDate, name, score, formattedElapsedTime, mapType, mode, status));
+            rankings.add(String.format("%s,%s,%s,%s,%s,%s", formattedDate, name, formattedElapsedTime, mapType, mode, status));
 
             String contentToWrite = String.join("\n", rankings);
 
