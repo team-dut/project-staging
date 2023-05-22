@@ -204,6 +204,7 @@ public class PacBoard extends JPanel {
                         getTimeUpdateTimer().stop();
                         setGameOver(true);
                         setGameStopTime(Instant.now());
+                        for (BaseGhost ghost : getGhosts()) ghost.getMoveTimer().stop();
                         historyUpdate("lose");
                         break;
                     } else {
@@ -270,6 +271,7 @@ public class PacBoard extends JPanel {
 
                 pacman.getMoveTimer().stop();
                 getTimeUpdateTimer().stop();
+                for (BaseGhost ghost : getGhosts()) ghost.getMoveTimer().stop();
 
                 setGameStopTime(Instant.now());
 
