@@ -40,7 +40,7 @@ public class PacWindow extends JFrame {
 
         Font customFont = Font.createFont(Font.TRUETYPE_FONT, Files.newInputStream(Paths.get("resources/fonts/pixeloid_mono.ttf"))).deriveFont(20.5f);
 
-        JLabel scoreboard = new JLabel(md.isCustom() ? "" : "Score: 0");
+        JLabel scoreboard = new JLabel("Score: 0");
         scoreboard.setFont(customFont);
         scoreboard.setForeground(new Color(255, 243, 36));
 
@@ -103,7 +103,6 @@ public class PacWindow extends JFrame {
                 boolean tr = false;
                 boolean bl = false;
                 boolean br = false;
-
 
                 if (map[x][y] > 0 && map[x][y] < 26) {
                     int mustSet = 0;
