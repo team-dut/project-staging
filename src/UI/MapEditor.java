@@ -205,7 +205,7 @@ public class MapEditor extends JFrame {
                 customMap.getFoods().add(new Food(i, j));
             }
             if (c == '=') {
-                map[i][j] = 0;
+                map[i][j] = -1;
             }
             if (c == 'O') {
                 map[i][j] = 0;
@@ -216,7 +216,7 @@ public class MapEditor extends JFrame {
                 customMap.getPowerUpFoods().add(new PowerUpFood(i, j, ThreadLocalRandom.current().nextInt(4) + 1));
             }
             if (c == 'B') {
-                map[i][j] = 0;
+                map[i][j] = -1;
                 customMap.setGhostBasePosition(new Point(i, j));
             }
             i++;
