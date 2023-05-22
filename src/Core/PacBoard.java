@@ -14,12 +14,9 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class PacBoard extends JPanel {
     private final Image foodImage = ImageIO.read(Files.newInputStream(Paths.get("resources/images/food.png")));
@@ -241,7 +238,7 @@ public class PacBoard extends JPanel {
                     gameStatus
             );
 
-            JOptionPane.showConfirmDialog(null, "Done!");
+            JOptionPane.showMessageDialog(null, "Done!");
         }
     }
 
