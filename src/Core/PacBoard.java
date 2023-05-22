@@ -144,7 +144,7 @@ public class PacBoard extends JPanel {
         // TODO: set to fixed fps value(s)
         // ex: 60fps ~= 17ms
         ActionListener redrawAL = evt -> repaint();
-        Timer redrawTimer = new Timer(16, redrawAL);
+        Timer redrawTimer = new Timer(0, redrawAL);
         redrawTimer.start();
 
         // TODO: cleanup
