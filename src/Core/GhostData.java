@@ -5,7 +5,7 @@ import Enums.GhostColor;
 public class GhostData {
     private int x;
     private int y;
-    private GhostColor color;
+    private final GhostColor color;
 
     public GhostData(int x, int y, GhostColor color) {
         this.x = x;
@@ -31,9 +31,5 @@ public class GhostData {
 
     public GhostColor getColor() {
         return this.color;
-    }
-
-    public void setColor(GhostColor color) {
-        this.color = color;
     }
 }
