@@ -1,5 +1,10 @@
 This is the OOP Final Project source code.
 
+GitHub: https://github.com/team-dut/project-staging
+
+This README is the oversimplified version of original README.md, by the way:
+https://github.com/team-dut/project-staging/blob/main/README.md
+
 # How to run
 
 - If you are insist on running from source: open this project with an IDE (we recommend IntelliJ) then run as usual.
