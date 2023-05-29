@@ -1,6 +1,6 @@
 out/production/*
 *.class
-history.txt
+resources/history.txt
 
 
 # Since I will put some black magic into the .jar file
