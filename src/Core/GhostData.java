@@ -1,5 +1,5 @@
 /*
-    Name: Group 15 from NH3-TTH2
+    Name: Group 15 from NH4-TTH2
     Members:
         Pham Tien Dat - ITITIU21172
         Do Tan Loc - ITCSIU21199
