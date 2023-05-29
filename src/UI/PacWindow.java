@@ -105,7 +105,11 @@ public class PacWindow extends JFrame {
         inner.getRedrawTimer().stop();
         inner.getSiren().stop();
         inner.getPacmanSound().stop();
-        for (BaseGhost ghost : inner.getGhosts()) ghost.getMoveTimer().stop();
+
+        for (BaseGhost ghost : inner.getGhosts()) {
+            ghost.getMoveTimer().stop();
+            ghost.getAnimationTimer().stop();
+        }
 
         super.dispose();
     }

@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -33,19 +32,14 @@ public abstract class BaseGhost {
     protected PacBoard board;
     protected int ghostNormalDelay;
 
-    private final Timer animTimer;
-    private final ActionListener animAL;
-    private final ActionListener pendingAL;
+    private final Timer animationTimer;
     private final Timer moveTimer;
-    private final ActionListener moveAL;
-    //Pending Vars
+
     private Timer pendingTimer;
     private Timer unWeakenTimer1;
     private Timer unWeakenTimer2;
-    private final ActionListener unweak1;
-    private final ActionListener unweak2;
 
-    private int unweakBlinks;
+    private int unweakenBlinks;
     private boolean isWhite = false;
 
     private final Image[] ghostW = {
@@ -76,11 +70,13 @@ public abstract class BaseGhost {
 
         loadImages();
 
-        animAL = evt -> activeImage = (activeImage + 1) % 2;
-        animTimer = new Timer(100, animAL);
-        animTimer.start();
+        ActionListener animationAL = evt -> activeImage = (activeImage + 1) % 2;
+        animationTimer = new Timer(100, animationAL);
+        animationTimer.start();
 
-        moveAL = new ActionListener() {
+        // FIXME : fix ghost movements
+        // TODO: cleanup code
+        ActionListener moveAL = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
 
                 if ((pixelPosition.x % 28 == 0) && (pixelPosition.y % 28 == 0)) {
@@ -171,23 +167,23 @@ public abstract class BaseGhost {
         moveTimer = new Timer(ghostDelay, moveAL);
         moveTimer.start();
 
-        unweak1 = e -> {
+        ActionListener unweak1 = e -> {
             unWeakenTimer2.start();
             unWeakenTimer1.stop();
         };
         unWeakenTimer1 = new Timer(7000, unweak1);
 
-        unweak2 = e -> {
-            if (unweakBlinks == 10) {
+        ActionListener unweak2 = e -> {
+            if (unweakenBlinks == 10) {
                 recoverFromWeakState();
                 unWeakenTimer2.stop();
             }
-            isWhite = unweakBlinks % 2 == 0;
-            unweakBlinks++;
+            isWhite = unweakenBlinks % 2 == 0;
+            unweakenBlinks++;
         };
         unWeakenTimer2 = new Timer(250, unweak2);
 
-        pendingAL = e -> {
+        ActionListener pendingAL = e -> {
             isPending = false;
             pendingTimer.stop();
         };
@@ -197,6 +193,10 @@ public abstract class BaseGhost {
         baseReturner = new BFSFinder(pb);
 
         activeMove = getMoveAI();
+    }
+
+    public Timer getAnimationTimer() {
+        return animationTimer;
     }
 
     public abstract void loadImages();
@@ -233,40 +233,6 @@ public abstract class BaseGhost {
                             (int) getBoard().getPacman().getLogicalPosition().getY()
                     );
         }
-    }
-
-    public ArrayList<MoveType> getPossibleMoves() {
-        ArrayList<MoveType> possibleMoves = new ArrayList<>();
-        Point logicalPosition = getLogicalPosition();
-        PacBoard parentBoard = getBoard();
-        int[][] map = parentBoard.getMap();
-
-        int x_pos = (int) logicalPosition.getX(), y_pos = (int) logicalPosition.getY();
-
-        if (
-                x_pos >= 0
-                        && x_pos < parentBoard.getMaxX() - 1
-                        && y_pos >= 0
-                        && y_pos < parentBoard.getMaxY() - 1
-        ) {
-            if (!(map[x_pos + 1][y_pos] > 0)) {
-                possibleMoves.add(MoveType.RIGHT);
-            }
-
-            if (!(map[x_pos - 1][y_pos] > 0)) {
-                possibleMoves.add(MoveType.LEFT);
-            }
-
-            if (!(map[x_pos][y_pos] > 0)) {
-                possibleMoves.add(MoveType.UP);
-            }
-
-            if (!(map[x_pos][y_pos] > 0)) {
-                possibleMoves.add(MoveType.DOWN);
-            }
-        }
-
-        return possibleMoves;
     }
 
     public Image getGhostImage() {
@@ -306,7 +272,7 @@ public abstract class BaseGhost {
     public void weaken() {
         setWeak(true);
         getMoveTimer().setDelay(getGhostWeakDelay());
-        setUnweakBlinks(0);
+        setUnweakenBlinks(0);
         setWhite(false);
 
         if (getUnWeakenTimer1().isRunning()) {
@@ -326,9 +292,13 @@ public abstract class BaseGhost {
         return unWeakenTimer1;
     }
 
-    public Image getGhostEye() {return ghostEye;}
+    public Image getGhostEye() {
+        return ghostEye;
+    }
 
-    public boolean isWhite() { return isWhite; }
+    public boolean isWhite() {
+        return isWhite;
+    }
 
     public void setWhite(boolean white) {
         isWhite = white;
@@ -362,24 +332,12 @@ public abstract class BaseGhost {
         return activeImage;
     }
 
-    public void setActiveImage(int activeImage) {
-        this.activeImage = activeImage;
-    }
-
     public MoveType getActiveMove() {
         return activeMove;
     }
 
-    public void setActiveMove(MoveType activeMove) {
-        this.activeMove = activeMove;
-    }
-
-    public int getUnweakBlinks() {
-        return unweakBlinks;
-    }
-
-    public void setUnweakBlinks(int unweakBlinks) {
-        this.unweakBlinks = unweakBlinks;
+    public void setUnweakenBlinks(int unweakenBlinks) {
+        this.unweakenBlinks = unweakenBlinks;
     }
 
     public int getGhostWeakDelay() {
