@@ -1,21 +1,22 @@
-import ABC.BaseExtension;
+import ABC.BasicExtension;
 import UI.StartWindow;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class GameBuilder {
-    private final ArrayList<BaseExtension> extensions;
+    private final ArrayList<BasicExtension> extensions;
 
     public GameBuilder() {
         this.extensions = new ArrayList<>();
     }
 
-    public ArrayList<BaseExtension> getExtensions() {
+    public ArrayList<BasicExtension> getExtensions() {
         return extensions;
     }
 
-    public GameBuilder addExtension(BaseExtension extension) {
+    public GameBuilder addExtension(BasicExtension extension) {
+        extension.setEnabled(true);
         getExtensions().add(extension);
         return this;
     }
@@ -24,7 +25,7 @@ public class GameBuilder {
         System.setProperty("sun.java2d.opengl", "True");
         System.setProperty("sun.java2d.xrender", "True");
 
-        for (BaseExtension ext : getExtensions()) {
+        for (BasicExtension ext : getExtensions()) {
             new Thread(() -> {
                 try {
                     ext.loadExtension();

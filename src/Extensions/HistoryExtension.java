@@ -1,6 +1,6 @@
 package Extensions;
 
-import ABC.BaseExtension;
+import ABC.BasicExtension;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -14,15 +14,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
-public class HistoryExtension extends BaseExtension {
-    private final boolean loaded;
-
+public class HistoryExtension extends BasicExtension {
     private static HistoryExtension extension;
-
-    public boolean isLoaded() {
-        return loaded;
-    }
 
     @Override
     public void loadExtension() {
@@ -34,11 +29,11 @@ public class HistoryExtension extends BaseExtension {
         return extension;
     }
 
-    private HistoryExtension() { this.loaded = true; }
+    private HistoryExtension() {
+    }
 
     public void addHistory(String name, int score, Duration duration, String mapType, String mode, String status) {
-        // no-op
-        if (!isLoaded()) return;
+        if (!getEnabled()) return;
 
         Path leaderboardFilePath = Paths.get("resources/history.txt");
 
@@ -50,7 +45,9 @@ public class HistoryExtension extends BaseExtension {
 
             String content = new String(Files.readAllBytes(leaderboardFilePath), StandardCharsets.UTF_8);
 
-            ArrayList<String> rankings = new ArrayList<>(Arrays.asList(content.split("\n")));
+            ArrayList<String> rankings = Arrays
+                    .stream(content.split("\n"))
+                    .filter(x -> x.trim().length() > 0).collect(Collectors.toCollection(ArrayList::new));
 
             String formattedElapsedTime = String.format("%02d:%02d:%02d", duration.toHours() % 24,
                     duration.toMinutes() % 60, duration.getSeconds() % 60).trim();

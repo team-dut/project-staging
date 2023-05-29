@@ -1,7 +1,6 @@
 package Extensions;
 
-import ABC.BaseExtension;
-
+import ABC.BasicExtension;
 import Background.DiscordNativeFilesDownloader;
 import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
@@ -11,11 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 
-public class DiscordExtension extends BaseExtension {
+public class DiscordExtension extends BasicExtension {
     private static DiscordExtension extension;
 
     private DiscordExtension() {
-
     }
 
     public static DiscordExtension getExtension() {
@@ -25,10 +23,11 @@ public class DiscordExtension extends BaseExtension {
 
     @Override
     public void loadExtension() throws IOException {
+        if (!getEnabled()) return;
+
         File discordLibrary = DiscordNativeFilesDownloader.downloadDiscordLibrary();
 
-        if(discordLibrary == null)
-        {
+        if (discordLibrary == null) {
             System.err.println("Error downloading Discord SDK.");
             System.exit(-1);
         }
