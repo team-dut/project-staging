@@ -1,6 +1,7 @@
 package UI;
 
 import Background.SoundPlayer;
+import Extensions.HistoryExtension;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -57,11 +58,9 @@ public class StartWindow extends JFrame {
 
         TheButton startButton = new TheButton("Start Game");
         TheButton customButton = new TheButton("Custom Game");
-        TheButton playHistoryButton = new TheButton("Play History");
 
         startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         customButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        playHistoryButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         startButton.addActionListener(e -> {
             try {
@@ -77,17 +76,23 @@ public class StartWindow extends JFrame {
             MapEditor.getInstance().pop();
         });
 
-        playHistoryButton.addActionListener(e -> {
-            try {
-                PlayHistory.getInstance().pop();
-            } catch (IOException | FontFormatException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-
         buttonsC.add(startButton, BorderLayout.SOUTH);
         buttonsC.add(customButton, BorderLayout.SOUTH);
-        buttonsC.add(playHistoryButton, BorderLayout.SOUTH);
+
+        if (HistoryExtension.getExtension().getEnabled()) {
+            TheButton playHistoryButton = new TheButton("Play History");
+            playHistoryButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            playHistoryButton.addActionListener(e -> {
+                try {
+                    PlayHistory.getInstance().pop();
+                } catch (IOException | FontFormatException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+
+            buttonsC.add(playHistoryButton, BorderLayout.SOUTH);
+        }
 
         getContentPane().add(buttonsC, BorderLayout.SOUTH);
 
