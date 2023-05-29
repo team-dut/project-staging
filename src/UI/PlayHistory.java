@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PlayHistory extends JFrame {
     private static PlayHistory playHistory;
@@ -25,7 +26,7 @@ public class PlayHistory extends JFrame {
     }
 
     public void pop() throws IOException, FontFormatException {
-        setMinimumSize(new Dimension(1000, 600));
+        setMinimumSize(new Dimension(1200, 600));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         getContentPane().setBackground(Color.black);
         setLocationRelativeTo(null);
@@ -53,7 +54,9 @@ public class PlayHistory extends JFrame {
 
             if (content.equals("")) break record_add;
 
-            ArrayList<String> rankings = new ArrayList<>(Arrays.asList(content.split("\n")));
+            ArrayList<String> rankings = Arrays
+                    .stream(content.split("\n"))
+                    .filter(x -> x.trim().length() > 0).collect(Collectors.toCollection(ArrayList::new));
 
             Collections.reverse(rankings);
             List<String> history = rankings.subList(0, Math.min(10, rankings.size()));
@@ -61,8 +64,6 @@ public class PlayHistory extends JFrame {
             if (history.size() >= 1)
                 for (String ranking : history) {
                     String[] elements = ranking.split(",");
-
-                    if (Arrays.stream(elements).count() > 1) break;
 
                     String date = elements[0];
                     String name = elements[1];
