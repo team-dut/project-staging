@@ -24,46 +24,9 @@ used technologies.
 
 - Game window and window designs: Java AWT (with OpenGL rendering pipeline)
 
-- Build system: Maven
-
 - CI system: GitHub action
 
 - `.exe` file creation: Launch4J.
-    - This is really a fun decision, because:
-      - The result binary size will be so sky-high
-      - The main developer is against that decision because he follows "do-it-yourself" principle: install the code, then build
-        > "In that way, the JVM can compile the code that is optimized for your machine"
-    
-# Game rule
-
-> Wait, really? Do you even need to see this?
-
-- The game rule is *simple*:
-  - You are the Pacman, which is the only thing that is yellow on the game screen.
-    - Your mission is to eat all the foods on the map ASAP, that is a `Game Clear` for you.
-    - You have to ignore the ghosts, or else, `Game Over`
-      - There is some large foods, which will put all ghosts in "weak" state for 7 seconds.
-      - When the ghost is eaten, they will return to base for a randomized time before going back to the game. Around 20-35 seconds to be exact.
-    
-  - There are five types of `Ghost`
-    > *There are actually three:*
-    - Red: most aggressive of all ghosts, will hunt you to the end of the world. 
-    - Blue: most peaceful of all ghosts, will move very slow, *slow*. Or is it?
-    - Cyan: most normal ghost type.
-    
-    > *Something I regret making it. Has very, very, very low chance to appear anyway*
-    - RGB: *Run. Now.*
-    - `Shielded` mutation: the ghost will have one more life when eaten. [Shielded ghost concept video - trigger warning.](https://www.youtube.com/shorts/b-RShSpLF5w)
-
-# Code design
-
-- We used some design patterns throughout the making of the game:
-  - `Singleton`: there should be only one start window, one map design window.
-  - `Builder`: there is `Discord rich presence` and `Leaderboard` extension, so that fits here.
-  - `Observer`: for game events handling - restart, player lose, etc.
-  > This pattern is subject to be removed or changed because of the burden in maintaining it!
-
-- UML: TBA
 
 # Is there anything new?
 
