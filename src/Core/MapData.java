@@ -2,7 +2,6 @@ package Core;
 
 import Entities.Food;
 import Entities.PowerUpFood;
-import Entities.TeleportTunnel;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 public class MapData {
     private final ArrayList<Food> foods;
     private final ArrayList<PowerUpFood> powerUpFoods;
-    private final ArrayList<TeleportTunnel> teleports;
     private final ArrayList<GhostData> ghosts;
     private int x;
     private int y;
@@ -24,7 +22,6 @@ public class MapData {
         this.y = y;
         this.foods = new ArrayList<>();
         this.powerUpFoods = new ArrayList<>();
-        this.teleports = new ArrayList<>();
         this.ghosts = new ArrayList<>();
     }
 
@@ -74,10 +71,6 @@ public class MapData {
 
     public ArrayList<PowerUpFood> getPowerUpFoods() {
         return powerUpFoods;
-    }
-
-    public ArrayList<TeleportTunnel> getTeleports() {
-        return teleports;
     }
 
     public ArrayList<GhostData> getGhosts() {

@@ -38,7 +38,6 @@ public class PacBoard extends JPanel {
     private ArrayList<Food> foods;
     private ArrayList<PowerUpFood> powerUpFoods;
     private ArrayList<BaseGhost> ghosts;
-    private ArrayList<TeleportTunnel> teleports;
     private boolean isGameOver = false;
     private boolean isWin = false;
     private boolean drawScore = false;
@@ -85,7 +84,6 @@ public class PacBoard extends JPanel {
         this.foods = new ArrayList<>();
         this.powerUpFoods = new ArrayList<>();
         this.ghosts = new ArrayList<>();
-        this.teleports = new ArrayList<>();
 
         if (!isCustom) {
             for (int i = 0; i < m_x; i++) {
@@ -100,7 +98,6 @@ public class PacBoard extends JPanel {
 
         this.powerUpFoods = md.getPowerUpFoods();
         this.ghosts = new ArrayList<>();
-        this.teleports = md.getTeleports();
 
         for (GhostData gd : md.getGhosts()) {
             switch (gd.getColor()) {
@@ -324,20 +321,6 @@ public class PacBoard extends JPanel {
             }
         }
 
-        for (TeleportTunnel tp : getTeleports()) {
-            if (
-                    pacman.getLogicalPosition().getX() == tp.getFrom().getX() &&
-                            pacman.getLogicalPosition().getY() == tp.getFrom().getY() &&
-                            pacman.getActiveMove() == tp.getReqMove()
-            ) {
-                pacman.setLogicalPosition(tp.getTo());
-                pacman.getPixelPosition().setLocation(
-                        pacman.getLogicalPosition().getX() * 28,
-                        pacman.getLogicalPosition().getY() * 28
-                );
-            }
-        }
-
         //Check isSiren
         boolean isSiren = true;
         for (BaseGhost g : getGhosts()) {
@@ -366,10 +349,6 @@ public class PacBoard extends JPanel {
 
     public SoundPlayer getPacmanSound() {
         return pacmanSound;
-    }
-
-    public ArrayList<TeleportTunnel> getTeleports() {
-        return teleports;
     }
 
     public ArrayList<Food> getFoods() {
