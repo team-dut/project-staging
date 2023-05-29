@@ -46,7 +46,6 @@ public class PacBoard extends JPanel {
     private int score = 0;
     private boolean shouldPlaySiren = false;
     private final Instant gameStartTime = Instant.now();
-    private final MapData backupMapData;
     private final Timer timeUpdateTimer;
     private Instant gameStopTime;
 
@@ -70,7 +69,6 @@ public class PacBoard extends JPanel {
         this.m_x = md.getX();
         this.m_y = md.getY();
         this.mapData = md;
-        this.backupMapData = md;
         this.map = md.getMap();
         this.isCustom = md.isCustom();
         this.ghostBase = md.getGhostBasePosition();
@@ -152,12 +150,12 @@ public class PacBoard extends JPanel {
             getWindowParent().getTimeStat().setText("Time: " + formattedElapsedTime);
         };
 
-        timeUpdateTimer = new Timer(1, timeUpdateAction);
+        this.timeUpdateTimer = new Timer(1, timeUpdateAction);
 
         this.siren = new SoundPlayer("siren.wav");
         this.pacmanSound = new SoundPlayer("pac6.wav");
 
-        timeUpdateTimer.start();
+        this.timeUpdateTimer.start();
         this.siren.start();
     }
 
@@ -584,8 +582,6 @@ public class PacBoard extends JPanel {
     public boolean getGameOver() {
         return isGameOver;
     }
-
-    public MapData getBackupMapData() {return backupMapData;}
 
     public void setGameOver(boolean gameOver) {
         isGameOver = gameOver;
