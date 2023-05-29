@@ -308,7 +308,22 @@ public abstract class BaseGhost {
         getMoveTimer().setDelay(getGhostWeakDelay());
         setUnweakBlinks(0);
         setWhite(false);
-        unWeakenTimer1.start();
+
+        if (getUnWeakenTimer1().isRunning()) {
+            getUnWeakenTimer2().stop();
+            getUnWeakenTimer1().restart();
+            System.out.println("Eating another, restarting!");
+        } else {
+            getUnWeakenTimer1().start();
+        }
+    }
+
+    public Timer getUnWeakenTimer2() {
+        return unWeakenTimer2;
+    }
+
+    public Timer getUnWeakenTimer1() {
+        return unWeakenTimer1;
     }
 
     public Image getGhostEye() {return ghostEye;}
