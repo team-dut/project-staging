@@ -1,5 +1,6 @@
 package UI;
 
+import ABC.BaseGhost;
 import Core.MapData;
 import Core.PacBoard;
 
@@ -15,6 +16,8 @@ import java.util.Scanner;
 
 public class PacWindow extends JFrame {
     private final JLabel timeStat;
+
+    private final PacBoard innerGame;
 
     public JLabel getTimeStat() {
         return timeStat;
@@ -57,15 +60,20 @@ public class PacWindow extends JFrame {
         sidePanel.add(scoreboard);
         sidePanel.add(timeStat);
 
-        PacBoard pb = new PacBoard(scoreboard, md, this);
-        pb.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new LineBorder(Color.BLUE)));
+        this.innerGame = new PacBoard(scoreboard, md, this);
+        this.innerGame.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new LineBorder(Color.BLUE)));
 
-        addKeyListener(pb.getPacman());
+        addKeyListener(this.innerGame.getPacman());
 
         this.getContentPane().add(sidePanel, BorderLayout.EAST);
-        this.getContentPane().add(pb);
+        this.getContentPane().add(this.innerGame);
         this.getContentPane().add(tooltip, BorderLayout.SOUTH);
+
         setVisible(true);
+    }
+
+    public PacBoard getInnerGame() {
+        return innerGame;
     }
 
     public MapData getMapFromResource(String relPath) {
@@ -86,5 +94,19 @@ public class PacWindow extends JFrame {
             System.err.println("Map is Empty !");
         }
         return MapEditor.compileMap(mapStr);
+    }
+
+    @Override
+    public void dispose() {
+        PacBoard inner = getInnerGame();
+
+        // stop all timers
+        inner.getTimeUpdateTimer().stop();
+        inner.getRedrawTimer().stop();
+        inner.getSiren().stop();
+        inner.getPacmanSound().stop();
+        for (BaseGhost ghost : inner.getGhosts()) ghost.getMoveTimer().stop();
+
+        super.dispose();
     }
 }

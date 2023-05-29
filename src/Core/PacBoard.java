@@ -48,18 +48,7 @@ public class PacBoard extends JPanel {
     private final Instant gameStartTime = Instant.now();
     private final Timer timeUpdateTimer;
     private Instant gameStopTime;
-
-    public Instant getGameStartTime() {
-        return gameStartTime;
-    }
-
-    public Instant getGameStopTime() {
-        return gameStopTime;
-    }
-
-    public void setGameStopTime(Instant gameStopTime) {
-        this.gameStopTime = gameStopTime;
-    }
+    private final Timer redrawTimer;
 
     public PacBoard(JLabel scoreboard, MapData md, PacWindow pw) throws IOException {
         this.setDoubleBuffered(true);
@@ -136,8 +125,9 @@ public class PacBoard extends JPanel {
         // TODO: set to fixed fps value(s)
         // ex: 60fps ~= 17ms
         ActionListener redrawAL = evt -> repaint();
-        Timer redrawTimer = new Timer(0, redrawAL);
-        redrawTimer.start();
+
+        this.redrawTimer = new Timer(0, redrawAL);
+        this.redrawTimer.start();
 
         // TODO: cleanup
         ActionListener timeUpdateAction = e -> {
@@ -157,6 +147,22 @@ public class PacBoard extends JPanel {
 
         this.timeUpdateTimer.start();
         this.siren.start();
+    }
+
+    public Instant getGameStartTime() {
+        return gameStartTime;
+    }
+
+    public Instant getGameStopTime() {
+        return gameStopTime;
+    }
+
+    public void setGameStopTime(Instant gameStopTime) {
+        this.gameStopTime = gameStopTime;
+    }
+
+    public Timer getRedrawTimer() {
+        return redrawTimer;
     }
 
     public Timer getTimeUpdateTimer() {
@@ -198,7 +204,9 @@ public class PacBoard extends JPanel {
                         g.getMoveTimer().stop();
                         getTimeUpdateTimer().stop();
                         setGameOver(true);
+                        getRedrawTimer().stop();
                         setGameStopTime(Instant.now());
+
                         for (BaseGhost ghost : getGhosts()) ghost.getMoveTimer().stop();
                         historyUpdate("lose");
                         break;
@@ -267,6 +275,7 @@ public class PacBoard extends JPanel {
 
                 pacman.getMoveTimer().stop();
                 getTimeUpdateTimer().stop();
+                getRedrawTimer().stop();
                 for (BaseGhost ghost : getGhosts()) ghost.getMoveTimer().stop();
 
                 setGameStopTime(Instant.now());
