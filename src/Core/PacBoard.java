@@ -109,7 +109,7 @@ public class PacBoard extends JPanel {
 
         for (int ms = 1; ms < 28; ms++) {
             try {
-                mapSegments[ms] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/map segments/" + ms + ".png")));
+                mapSegments[ms] = ImageIO.read(Files.newInputStream(Paths.get("resources/images/map_assets/" + ms + ".png")));
             } catch (Exception ignored) {
             }
         }

@@ -24,9 +24,7 @@ public class Pacman implements KeyListener {
     private MoveType activeMove;
     public Point logicalPosition;
     private final Point pixelPosition;
-    //Move Vars
     private final Timer moveTimer;
-    //Animation Vars
     private final Timer animateTimer;
 
     public Pacman(int x, int y, PacBoard pb) throws IOException {
