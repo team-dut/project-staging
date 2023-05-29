@@ -11,14 +11,6 @@ public class SoundPlayer {
 
     private boolean loop;
 
-    public Clip getClip() {
-        return clip;
-    }
-
-    public boolean getLoop() {
-        return loop;
-    }
-
     public SoundPlayer(final String name, boolean loop) {
         this(name);
         this.loop = loop;
@@ -33,6 +25,14 @@ public class SoundPlayer {
             getClip().open(inputStream);
         } catch (LineUnavailableException | UnsupportedAudioFileException | IOException ignored) {
         }
+    }
+
+    public Clip getClip() {
+        return clip;
+    }
+
+    public boolean getLoop() {
+        return loop;
     }
 
     public synchronized void start() {

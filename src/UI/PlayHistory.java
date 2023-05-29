@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
 public class PlayHistory extends JFrame {
     private static PlayHistory playHistory;
 
-    private PlayHistory() {}
+    private PlayHistory() {
+    }
 
     public static PlayHistory getInstance() {
         if (playHistory == null) playHistory = new PlayHistory();

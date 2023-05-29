@@ -9,5 +9,7 @@ public class Food {
         position = new Point(x, y);
     }
 
-    public Point getPosition() { return position; }
+    public Point getPosition() {
+        return position;
+    }
 }

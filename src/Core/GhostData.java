@@ -3,9 +3,9 @@ package Core;
 import Enums.GhostColor;
 
 public class GhostData {
+    private final GhostColor color;
     private int x;
     private int y;
-    private final GhostColor color;
 
     public GhostData(int x, int y, GhostColor color) {
         this.x = x;

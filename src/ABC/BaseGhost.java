@@ -20,6 +20,17 @@ public abstract class BaseGhost {
     protected final int ghostWeakDelay = 30;
     private final Point pixelPosition;
     private final Point logicalPosition;
+    private final Timer animationTimer;
+    private final Timer moveTimer;
+    private final Image[] ghostW = {
+            ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/blue/1.png")))),
+            ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/blue/3.png")))),
+    };
+    private final Image[] ghostWW = {
+            ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/white/1.png")))),
+            ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/white/3.png")))
+    };
+    private final Image ghostEye = ImageIO.read(Files.newInputStream(Paths.get("resources/images/eye.png")));
     protected boolean isStuck = true;
     protected boolean isPending = false;
     protected boolean isWeak = false;
@@ -31,28 +42,11 @@ public abstract class BaseGhost {
     protected BFSFinder baseReturner;
     protected PacBoard board;
     protected int ghostNormalDelay;
-
-    private final Timer animationTimer;
-    private final Timer moveTimer;
-
     private Timer pendingTimer;
     private Timer unWeakenTimer1;
     private Timer unWeakenTimer2;
-
     private int unweakenBlinks;
     private boolean isWhite = false;
-
-    private final Image[] ghostW = {
-            ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/blue/1.png")))),
-            ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/blue/3.png")))),
-    };
-
-    private final Image[] ghostWW = {
-            ImageIO.read(Files.newInputStream(Paths.get(("resources/images/ghost/white/1.png")))),
-            ImageIO.read(Files.newInputStream(Paths.get("resources/images/ghost/white/3.png")))
-    };
-
-    private final Image ghostEye = ImageIO.read(Files.newInputStream(Paths.get("resources/images/eye.png")));
     private BFSFinder bfsFinder;
     private MoveType pendingMove = MoveType.UP;
     private MoveType activeMove;
@@ -399,10 +393,6 @@ public abstract class BaseGhost {
         isWeak = weak;
     }
 
-    public void setPending(boolean pending) {
-        isPending = pending;
-    }
-
     public Timer getPendingTimer() {
         return pendingTimer;
     }
@@ -429,6 +419,10 @@ public abstract class BaseGhost {
 
     public boolean isPending() {
         return isPending;
+    }
+
+    public void setPending(boolean pending) {
+        isPending = pending;
     }
 
     public boolean isStuck() {

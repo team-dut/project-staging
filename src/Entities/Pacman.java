@@ -21,11 +21,17 @@ public class Pacman implements KeyListener {
             ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac3.png"))),
             ImageIO.read(Files.newInputStream(Paths.get("resources/images/pac/pac4.png")))
     };
-    private MoveType activeMove;
-    public Point logicalPosition;
     private final Point pixelPosition;
     private final Timer moveTimer;
     private final Timer animateTimer;
+    public Point logicalPosition;
+    ActionListener moveAL;
+    MoveType todoMove;
+    boolean isStuck = true;
+    ActionListener animAL;
+    int activeImage = 0;
+    int addFactor = 1;
+    private MoveType activeMove;
 
     public Pacman(int x, int y, PacBoard pb) throws IOException {
         logicalPosition = new Point(x, y);
@@ -158,17 +164,9 @@ public class Pacman implements KeyListener {
         moveTimer.start();
     }
 
-    ActionListener moveAL;
-    MoveType todoMove;
-    boolean isStuck = true;
-    ActionListener animAL;
-
     public Timer getMoveTimer() {
         return moveTimer;
     }
-
-    int activeImage = 0;
-    int addFactor = 1;
 
     public Timer getAnimateTimer() {
         return animateTimer;

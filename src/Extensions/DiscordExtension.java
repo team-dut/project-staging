@@ -35,17 +35,14 @@ public class DiscordExtension extends BasicExtension {
         Core.init(discordLibrary);
 
         // Set parameters for the Core
-        try(CreateParams params = new CreateParams())
-        {
+        try (CreateParams params = new CreateParams()) {
             params.setClientID(974846248605581314L);
             params.setFlags(CreateParams.getDefaultFlags());
 
             // Create the Core
-            try(Core core = new Core(params))
-            {
+            try (Core core = new Core(params)) {
                 // Create the Activity
-                try(Activity activity = new Activity())
-                {
+                try (Activity activity = new Activity()) {
                     activity.setDetails("Playing a game");
                     activity.setState("Probably having fun?");
 
@@ -55,17 +52,13 @@ public class DiscordExtension extends BasicExtension {
                 }
 
                 // Run callbacks forever
-                while(true)
-                {
+                while (true) {
                     core.runCallbacks();
-                    try
-                    {
+                    try {
                         System.out.println("This work?");
                         // Sleep a bit to save CPU
                         Thread.sleep(60 * 1000);
-                    }
-                    catch(InterruptedException e)
-                    {
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }

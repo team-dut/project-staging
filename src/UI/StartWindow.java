@@ -19,14 +19,14 @@ public class StartWindow extends JFrame {
         titleMusicPlayer.start();
     }
 
-    public SoundPlayer getTitleMusicPlayer() {
-        return titleMusicPlayer;
-    }
-
     public static StartWindow getInstance() {
         if (startWindow == null) startWindow = new StartWindow();
 
         return startWindow;
+    }
+
+    public SoundPlayer getTitleMusicPlayer() {
+        return titleMusicPlayer;
     }
 
     public void pop() throws IOException {

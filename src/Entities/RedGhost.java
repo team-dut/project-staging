@@ -1,9 +1,7 @@
 package Entities;
 
 import ABC.BaseGhost;
-import Core.BFSFinder;
 import Core.PacBoard;
-import Enums.MoveType;
 import Helpers.ImageHelper;
 
 import javax.imageio.ImageIO;
@@ -13,7 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class RedGhost extends BaseGhost {
-    public RedGhost(int x, int y, PacBoard pb) throws IOException {super(x, y, pb, 12);}
+    public RedGhost(int x, int y, PacBoard pb) throws IOException {
+        super(x, y, pb, 12);
+    }
 
     @Override
     public void loadImages() {

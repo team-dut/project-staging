@@ -19,10 +19,6 @@ public class PacWindow extends JFrame {
 
     private final PacBoard innerGame;
 
-    public JLabel getTimeStat() {
-        return timeStat;
-    }
-
     public PacWindow(MapData md) throws IOException, FontFormatException {
         if (md == null) {
             // load default map
@@ -70,6 +66,10 @@ public class PacWindow extends JFrame {
         this.getContentPane().add(tooltip, BorderLayout.SOUTH);
 
         setVisible(true);
+    }
+
+    public JLabel getTimeStat() {
+        return timeStat;
     }
 
     public PacBoard getInnerGame() {

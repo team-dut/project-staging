@@ -19,8 +19,7 @@ import java.util.stream.Collectors;
 public class HistoryExtension extends BasicExtension {
     private static HistoryExtension extension;
 
-    @Override
-    public void loadExtension() {
+    private HistoryExtension() {
     }
 
     public static HistoryExtension getExtension() {
@@ -29,7 +28,8 @@ public class HistoryExtension extends BasicExtension {
         return extension;
     }
 
-    private HistoryExtension() {
+    @Override
+    public void loadExtension() {
     }
 
     public void addHistory(String name, int score, Duration duration, String mapType, String mode, String status) {

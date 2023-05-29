@@ -2,7 +2,6 @@ package Entities;
 
 import ABC.BaseGhost;
 import Core.PacBoard;
-import Enums.MoveType;
 import Helpers.ImageHelper;
 
 import javax.imageio.ImageIO;
@@ -10,8 +9,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 
 
 public class CyanGhost extends BaseGhost {

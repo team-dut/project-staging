@@ -35,6 +35,9 @@ public class PacBoard extends JPanel {
     private final boolean isCustom;
     private final Image[] mapSegments;
     private final Image[] powerUpFoodImage;
+    private final Instant gameStartTime = Instant.now();
+    private final Timer timeUpdateTimer;
+    private final Timer redrawTimer;
     private ArrayList<Food> foods;
     private ArrayList<PowerUpFood> powerUpFoods;
     private ArrayList<BaseGhost> ghosts;
@@ -45,10 +48,7 @@ public class PacBoard extends JPanel {
     private int pendingScore = 0;
     private int score = 0;
     private boolean shouldPlaySiren = false;
-    private final Instant gameStartTime = Instant.now();
-    private final Timer timeUpdateTimer;
     private Instant gameStopTime;
-    private final Timer redrawTimer;
 
     public PacBoard(JLabel scoreboard, MapData md, PacWindow pw) throws IOException {
         this.setDoubleBuffered(true);
@@ -232,9 +232,9 @@ public class PacBoard extends JPanel {
     }
 
     private void historyUpdate(String gameStatus) {
-        int dialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save this run?","History save", JOptionPane.YES_NO_OPTION);
+        int dialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save this run?", "History save", JOptionPane.YES_NO_OPTION);
 
-        if(dialogResult == JOptionPane.YES_OPTION){
+        if (dialogResult == JOptionPane.YES_OPTION) {
             String name = JOptionPane.showInputDialog(null, "Your name please!");
 
             HistoryExtension.getExtension().addHistory(
